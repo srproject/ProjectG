@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+    <item android:title="Timeline"
+        android:id="@+id/nav_item_Timeline"
+        />
+
+    <item android:title="Notification"
+        android:id="@+id/nav_item_Notification"
+        />
+
+    <item android:title="Profile"
+        android:id="@+id/nav_item_Profile" />
+
+
+
+    <group android:id="@+id/group_other">
+        <item
+            android:title="Contacts"
+            android:id="@+id/nav_item_Contacts"
+            />
+        <item
+            android:title="Invite Friend"
+            android:id="@+id/nav_item_Invite"
+
+
+            />
+    </group>
+
+    <group android:id="@+id/group_settings_id">
+
+        <item android:title="Settings"
+            android:id="@+id/nav_item_setting"
+
+            />
+        <item android:title="Help"
+            android:id="@+id/nav_item_help"
+            />
+    </group>
+
+
+</menu>
