@@ -2,22 +2,63 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-
-    <item android:title="Timeline"
-        android:id="@+id/nav_item_Timeline"
-        />
-
-    <item android:title="Notification"
-        android:id="@+id/nav_item_Notification"
-        />
-
-    <item android:title="Profile"
-        android:id="@+id/nav_item_Profile" />
+    <group android:id="@+id/group_tab"
+        android:checkableBehavior="single"
+        >
 
 
 
-    <group android:id="@+id/group_other">
+        <item android:title="Timeline"
+            android:id="@+id/nav_item_Timeline"
+            />
+
+        <item android:title="Notification"
+            android:id="@+id/nav_item_Notification"
+            />
+
+        <item android:title="Profile"
+            android:id="@+id/nav_item_Profile" />
+
+    </group>
+
+
+
+    <group android:id="@+id/group_event">
+
+        <item
+            android:title="Add Event"
+            android:enabled="false"
+            android:checkable="false">
+        </item>
+
+        <item android:title="Bump Event"
+            android:id="@+id/nav_item_abu_event"
+
+            />
+        <item android:title="Trafic Camera Event"
+            android:id="@+id/nav_item_atc_event"
+
+            />
+        <item android:title="Other Event"
+            android:id="@+id/nav_item_aoth_event"
+
+            />
+
+    </group>
+
+
+
+
+    <group android:id="@+id/group_settings_id"
+         >
+        <item
+            android:title="Other"
+            android:enabled="false"
+            android:checkable="false">
+        </item>
+
+
+
         <item
             android:title="Contacts"
             android:id="@+id/nav_item_Contacts"
@@ -28,18 +69,22 @@
 
 
             />
-    </group>
 
-    <group android:id="@+id/group_settings_id">
-
-        <item android:title="Settings"
-            android:id="@+id/nav_item_setting"
+        <item android:title="Sign in"
+            android:id="@+id/nav_item_signin"
 
             />
-        <item android:title="Help"
-            android:id="@+id/nav_item_help"
+        <item android:title="Sign out"
+            android:id="@+id/nav_item_signout"
+
+            />
+
+        <item android:title="About"
+            android:id="@+id/nav_item_about"
+
             />
     </group>
+
 
 
 </menu>
