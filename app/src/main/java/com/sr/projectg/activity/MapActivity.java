@@ -477,13 +477,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
         Marker kiel = mMap.addMarker(new MarkerOptions()
                 .position(srlocation)
-                .title("Matab")
-                .snippet("Sameh Say: Kiel is cool"+"   Sr Say: Kiel is cool"+"   Sr Say: Kiel is cool"+"   Sr Say: Kiel is cool"+"   Sr Say: Kiel is cool"+"   Sr Say: Kiel is cool")
-                .icon(BitmapDescriptorFactory
+                .title("Event")
+                 .icon(BitmapDescriptorFactory
                         .fromResource(R.mipmap.ic_location_on_black_48dp)));
 
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(srlocation, 18));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(srlocation, 15));
 
 
 

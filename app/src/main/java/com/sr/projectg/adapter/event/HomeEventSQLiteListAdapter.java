@@ -93,7 +93,7 @@ public class HomeEventSQLiteListAdapter extends BaseAdapter {
         }
          holder.event_type.setText(arevent_type.get(position));
         holder.event_des.setText(arevent_des.get(position));
-       getChamp_splash();
+      getChamp_splash();
        holder.ev_snap.setImageBitmap(dsd.get(position));
 
 
@@ -116,8 +116,8 @@ public class HomeEventSQLiteListAdapter extends BaseAdapter {
 
 
 
-    public static Bitmap getImage(byte[] image) {
-        return BitmapFactory.decodeByteArray(image, 0, image.length);
+    public static Bitmap getImage(byte[] image, int i, int length) {
+        return BitmapFactory.decodeByteArray(image, i, image.length);
     }
 
 
@@ -144,7 +144,9 @@ public class HomeEventSQLiteListAdapter extends BaseAdapter {
                 if (cursor.moveToFirst()) {
                     do {
                         arevent_snap = cursor.getBlob(cursor.getColumnIndex("event_map_snap"));
-                        bitmap = BitmapFactory.decodeByteArray(arevent_snap, 0, arevent_snap.length);
+                        bitmap = getImage(arevent_snap,0,arevent_snap.length);
+
+
                         dsd.add(bitmap);
 
 

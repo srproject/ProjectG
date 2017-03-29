@@ -43,10 +43,13 @@ import com.sr.projectg.R;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.google.maps.android.clustering.ClusterManager;
+import com.sr.projectg.clustering.AppClusterItem;
+
+
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.LOCATION_SERVICE;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -77,10 +80,15 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
     Cursor cursor;
 
     ArrayList<LatLng> latLngs = new ArrayList<LatLng>();
+    ArrayList<Double> latc = new ArrayList<>();
+    ArrayList<Double> longc = new ArrayList<>();
     ArrayList<String> location_name = new ArrayList<String>();
     ArrayList<String> det = new ArrayList<String>();
 
     LatLng newLatLng;
+
+
+    ClusterManager<AppClusterItem> mClusterManager;
 
 
     @Override
@@ -88,6 +96,8 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
         View rootView = inflater.inflate(R.layout.map_fragment, container, false);
 
         getdataevent();
+
+
 
         //getdatafromevent();
        // MapsInitializer.initialize(getActivity());
@@ -111,6 +121,16 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
             @Override
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
+
+
+                mClusterManager = new ClusterManager<AppClusterItem>(getActivity(), googleMap);
+
+                // Point the map's listeners at the listeners implemented by the cluster manager.
+                googleMap.setOnCameraChangeListener(mClusterManager);
+                googleMap.setOnMarkerClickListener(mClusterManager);
+
+
+
 
 
 
@@ -142,29 +162,34 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
                 Iterator<LatLng> latLng = latLngs.iterator();
                 Iterator<String> locationname = location_name.iterator();
                 Iterator<String> deti = det.iterator();
-                while (latLng.hasNext()) {
+                Iterator<Double> latcc = latc.iterator();
+                Iterator<Double> longcc = longc.iterator();
 
-                    while (locationname.hasNext()) {
+                while (latcc.hasNext()) {
 
 
-                        googleMap.addMarker(new MarkerOptions().position(latLng.next()).snippet(deti.next()).title(locationname.next()));
+
+                       // googleMap.addMarker(new MarkerOptions().position(latLng.next()).snippet(deti.next()).title(locationname.next()));
+                        AppClusterItem offsetItem = new AppClusterItem(latcc.next(), longcc.next());
+
+                        mClusterManager.addItem(offsetItem);
                         LatLng sydney = new LatLng(lat, lng);
 
-
+                       // addClusterMarkers(mClusterManager);
                         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
+                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
                         googleMap.animateCamera(zoom);
 
-                    }
+
 
 
                 }
-                LatLng sydney = new LatLng(lat, lng);
+                ///LatLng sydney = new LatLng(lat, lng);
 
-                googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+//                googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
 
-                   CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
-                    googleMap.animateCamera(zoom);
+//                   CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
+  //                  googleMap.animateCamera(zoom);
 
 
                 listener = new LocationListener() {
@@ -201,6 +226,8 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
                     }
                 };
                 getlatlong();
+
+//                addClusterMarkers(mClusterManager);
 
 
                 // For zooming automatically to the location of the marker
@@ -351,6 +378,9 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
                         det1 = cursor.getString(cursor.getColumnIndex("event_det"));
                         newLatLng = new LatLng(Double.parseDouble(lat1), Double.parseDouble(lng1));
                         latLngs.add(newLatLng);
+                        latc.add(Double.parseDouble(lat1));
+                        longc.add(Double.parseDouble(lng1));
+
                         location_name.add(name1);
                         det.add(det1);
                         lat = Double.parseDouble(lat1);
@@ -437,6 +467,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
    public static void zoom(){
 
+       mMapView.onStop();
        mMapView.onResume();
 
    }
@@ -451,6 +482,22 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
                 new LatLng(26.820553,30.802498), 9));
 
 
+    }
+
+    private void addClusterMarkers(ClusterManager<AppClusterItem> mClusterManager) {
+
+        // Set some lat/lng coordinates to start with.
+        double latitude = 30.044420;
+        double longitude = 31.235712;
+
+        // Add ten cluster items in close proximity, for purposes of this example.
+        for (int i = 0; i < 10; i++) {
+            double offset = i / 60d;
+            longitude = longitude + offset;
+            AppClusterItem offsetItem = new AppClusterItem(latitude, longitude);
+
+            mClusterManager.addItem(offsetItem);
+        }
     }
 }
 
