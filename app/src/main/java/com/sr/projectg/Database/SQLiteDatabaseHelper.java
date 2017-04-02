@@ -19,7 +19,7 @@ import java.io.OutputStream;
 
 public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
 
-    public static  final String DATABASE_NAME="TheXData.db";
+    public static  final String DATABASE_NAME="TheXXData.db";
 
     //EVENT Table
 
@@ -27,7 +27,8 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
     public static  final String event_id="event_id";
     public static  final String event_account_id="event_account_id";
     public static  final String event_type="event_type";
-     public static  final String event_date_time="event_date_time";
+    public static  final String event_type_code="event_type_code";
+    public static  final String event_date_time="event_date_time";
     public static  final String event_latitude="event_latitude";
     public static  final String event_longitude="event_longitude";
     public static  final String event_locnam="event_locnam";
@@ -167,7 +168,7 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
 
 
          db.execSQL("create table event (event_id VARCHAR PRIMARY KEY, event_account_id VARCHAR " +
-                 ",event_type VARCHAR ,event_date_time VARCHAR" +
+                 ",event_type VARCHAR ,event_type_code VARCHAR  ,event_date_time VARCHAR" +
                  ",event_latitude VARCHAR ,event_longitude VARCHAR" +
                  ",event_locnam VARCHAR ,event_det VARCHAR" +
                  ",event_photo BLOB ,event_map_snap BLOB  )" +
@@ -273,7 +274,7 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
         //EVENT Table
 
         db.execSQL("create table IF NOT EXISTS event (event_id VARCHAR PRIMARY KEY, event_account_id VARCHAR " +
-                ",event_type VARCHAR ,event_date_time VARCHAR" +
+                ",event_type VARCHAR ,event_type_code VARCHAR  ,event_date_time VARCHAR" +
                 ",event_latitude VARCHAR ,event_longitude VARCHAR" +
                 ",event_locnam VARCHAR ,event_det VARCHAR" +
                 ",event_photo BLOB ,event_map_snap BLOB  )" +
@@ -371,7 +372,7 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
 
 // insert data into table event
 
-    public boolean insertDataforevent (String ievent_id,String ievent_account_id,String ievent_type,String ievent_time,String ievent_date
+    public boolean insertDataforevent (String ievent_id,String ievent_account_id,String ievent_type,String ievent_type_code,String ievent_time,String ievent_date
             ,String ievent_latitude,String ievent_longitude,String ievent_locnam,String ievent_det,byte[] ievent_photo ,byte[] ievent_map_snap) {
 
 
@@ -382,7 +383,8 @@ public class SQLiteDatabaseHelper extends SQLiteOpenHelper {
         contentValues.put(event_id,ievent_id);
         contentValues.put(event_account_id,ievent_account_id);
         contentValues.put(event_type, ievent_type);
-         contentValues.put(event_date_time, ievent_date+"-"+ievent_time);
+        contentValues.put(event_type_code, ievent_type_code);
+        contentValues.put(event_date_time, ievent_date+"-"+ievent_time);
         contentValues.put(event_latitude, ievent_latitude);
         contentValues.put(event_longitude, ievent_longitude);
         contentValues.put(event_locnam, ievent_locnam);
@@ -701,7 +703,7 @@ public boolean insertDataforEventShareExPhoto (String iphoto_id,String ievent_ph
 
 // Update data into table event *SR*
 
-    public boolean UpdateDataforevent (String ievent_id,String ievent_account_id,String ievent_type,String ievent_time,String ievent_date
+    public boolean UpdateDataforevent (String ievent_id,String ievent_account_id,String ievent_type,String ievent_type_code,String ievent_time,String ievent_date
             ,String ievent_latitude,String ievent_longitude,String ievent_locnam,String ievent_det,String ievent_photo ,String ievent_map_snap) {
 
 
@@ -712,7 +714,8 @@ public boolean insertDataforEventShareExPhoto (String iphoto_id,String ievent_ph
         contentValues.put(event_id,ievent_id);
         contentValues.put(event_account_id,ievent_account_id);
         contentValues.put(event_type, ievent_type);
-         contentValues.put(event_date_time, ievent_date+"-"+ievent_time);
+        contentValues.put(event_type_code, ievent_type_code);
+        contentValues.put(event_date_time, ievent_date+"-"+ievent_time);
         contentValues.put(event_latitude, ievent_latitude);
         contentValues.put(event_longitude, ievent_longitude);
         contentValues.put(event_locnam, ievent_locnam);
@@ -740,6 +743,8 @@ public boolean insertDataforEventShareExPhoto (String iphoto_id,String ievent_ph
 
     public boolean UpdateDataforEventArea(String ievent_area_id,String ievent_area_account_id,String ievent_area_type,String ievent_area_time,String ievent_area_date
             ,String ievent_area_latitude,String ievent_area_longitude,String ievent_area_locnam,String ievent_area_area_det,String ievent_area_area_photo,String ievent_area_map_snap){
+
+
         SQLiteDatabase db=this.getWritableDatabase();
         ContentValues contentValues =new ContentValues();
         contentValues.put(event_area_id,ievent_area_id);
@@ -776,8 +781,8 @@ public boolean insertDataforEventShareExPhoto (String iphoto_id,String ievent_ph
     public boolean UpdateDataforComment (String icomment_id,String ievent_comment_id, String ievent_account_comment_id ,
                                          String icomment_text,String ievent_comment_date,String ievent_comment_time){
 
-        SQLiteDatabase db = this.getWritableDatabase();
 
+        SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(comment_id,icomment_id);
         contentValues.put(event_comment_id, ievent_comment_id);

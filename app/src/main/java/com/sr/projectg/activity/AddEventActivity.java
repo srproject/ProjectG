@@ -101,6 +101,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
     LatLng latLng=null;
     GoogleApiClient mGoogleApiClient;
 
+    Bundle bundle;
 
 
     @Override
@@ -121,7 +122,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
           actionBar = getSupportActionBar();
         if (actionBar != null) {
-            Bundle bundle = getIntent().getExtras();
+            bundle = getIntent().getExtras();
 
             actionBar.setTitle(bundle.getString("SRtitle"));
             Log.v("SR Set Event Title:", actionBar.getTitle().toString());
@@ -272,6 +273,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
         fabloc = (FloatingActionButton) findViewById(R.id.fabloc);
         fabsend= (FloatingActionButton) findViewById(R.id.fabsend);
+
         fabsend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -289,7 +291,8 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
                      boolean inserted =myDB.insertDataforevent(getidevent()
                              ,"ac5454"
-                             ,actionBar.getTitle().toString()
+                             ,bundle.getString("SRtitle")
+                             ,bundle.getString("SRCode")
                             ,timematab.getText().toString()
                             ,datematab.getText().toString()
                             ,text1.toString()
@@ -768,10 +771,9 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
         mMap.getUiSettings().setMapToolbarEnabled(false);
 
         if (srlocation!=null) {
-            Marker kiel = mMap.addMarker(new MarkerOptions()
+            Marker SR = mMap.addMarker(new MarkerOptions()
                     .position(srlocation)
-                    .title("Event Location")
-                    .icon(bbd(actionBar.getTitle().toString())));
+                     .icon(bbd(bundle.getString("SRCode"))));
 
 
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(srlocation, 17));

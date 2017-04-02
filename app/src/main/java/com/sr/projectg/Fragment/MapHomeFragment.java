@@ -82,7 +82,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
     static double lng;
     static double lat;
 
-    String name1, lat1, lng1,det1;
+    String name1, lat1, lng1,det1,code1;
 
     SQLiteDatabaseHelper SQLITEHELPER;
     SQLiteDatabase SQLITEDATABASE;
@@ -93,6 +93,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
     static ArrayList<Double> longc = new ArrayList<>();
     ArrayList<String> location_name = new ArrayList<String>();
     ArrayList<String> det = new ArrayList<String>();
+    ArrayList<String> code = new ArrayList<String>();
 
     LatLng newLatLng;
 
@@ -196,14 +197,6 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
 
                 }
-
-
-
-
-
-
-
-
                 if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
@@ -214,77 +207,14 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
                     // for ActivityCompat#requestPermissions for more details.
                     return;
                 }
-
-                // For showing a move to my location button
-
-
-
-
                 // Enable / Disable Compass icon
                 googleMap.getUiSettings().setCompassEnabled(true);
-
                 // Enable / Disable Rotate gesture
                 googleMap.getUiSettings().setRotateGesturesEnabled(true);
 
 
+                addcluster();
 
-
-                Iterator<LatLng> latLng = latLngs.iterator();
-                Iterator<String> locationname = location_name.iterator();
-                Iterator<String> deti = det.iterator();
-                Iterator<Double> latcc = latc.iterator();
-                Iterator<Double> longcc = longc.iterator();
-               // addClusterMarkers(mClusterManager);
-
-
-                icon = BitmapDescriptorFactory.fromResource(R.mipmap.newbump);
-
-
-                if(bbs=="Bump"){
-                    bbi=1;
-
-                }
-                else if(bbs=="Trafic Camera"){
-                    bbi=2;
-
-                }
-                 while (latcc.hasNext()&&deti.hasNext()) {
-
-
-
-                     // googleMap.addMarker(new MarkerOptions().position(latLng.next()).snippet(deti.next()).title(locationname.next()));
-
-                     bbs=locationname.next();
-                    // Log.i("SR0007",bbs);
-                     //bbi=1;
-
-
-
-
-
-                     MyItem offsetItem = new MyItem(bbd(bbs),latcc.next(), longcc.next(),bbs,deti.next());
-
-                        mClusterManager.addItem(offsetItem);
-                        LatLng sydney = new LatLng(lat, lng);
-
-                       // addClusterMarkers(mClusterManager);
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
-                        googleMap.animateCamera(zoom);
-
-
-
-
-
-                }
-                mClusterManager.cluster();
-
-                if(!latcc.hasNext()){
-
-                    loadingmpf.setVisibility(View.GONE);
-
-
-                }
 
 
                 ///LatLng sydney = new LatLng(lat, lng);
@@ -346,13 +276,21 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
     @Override
     public void onResume() {
         super.onResume();
+        mMapView.onPause();
         mMapView.onResume();
+        Log.i("SR0009","Re");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            mMapView.getOverlay().clear();
+        }
+        mMapView.invalidate();
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
-     //   mMapView.onPause();
+        mMapView.onPause();
+        Log.i("SR0009","Pu");
     }
 
     @Override
@@ -481,6 +419,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
                         lat1 = cursor.getString(cursor.getColumnIndex("event_latitude"));
                         lng1 = cursor.getString(cursor.getColumnIndex("event_longitude"));
                         det1 = cursor.getString(cursor.getColumnIndex("event_det"));
+                        code1 = cursor.getString(cursor.getColumnIndex("event_type_code"));
                         newLatLng = new LatLng(Double.parseDouble(lat1), Double.parseDouble(lng1));
                         latLngs.add(newLatLng);
                         latc.add(Double.parseDouble(lat1));
@@ -488,6 +427,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
                         location_name.add(name1);
                         det.add(det1);
+                        code.add(code1);
                         lat = Double.parseDouble(lat1);
                         lng=Double.parseDouble(lng1);
 
@@ -512,7 +452,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
     @Override
     public boolean onMarkerClick(Marker marker) {
 
-        String name= (String) marker.getTag();
+        String name= (String) marker.getId();
 
 
         if (name=="")
@@ -650,6 +590,56 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
 
         return bb;
+    }
+
+
+    public void addcluster(){
+
+
+
+        Iterator<LatLng> latLng = latLngs.iterator();
+        Iterator<String> locationname = location_name.iterator();
+        Iterator<String> deti = det.iterator();
+        Iterator<String> codei = code.iterator();
+        Iterator<Double> latcc = latc.iterator();
+        Iterator<Double> longcc = longc.iterator();
+
+
+
+        while (latcc.hasNext()&&deti.hasNext()) {
+
+
+
+            // googleMap.addMarker(new MarkerOptions().position(latLng.next()).snippet(deti.next()).title(locationname.next()));
+
+            bbs=codei.next();
+            Log.i("SR0007",bbs);
+
+
+            //    mClusterManager.clearItems();
+
+
+
+            MyItem offsetItem = new MyItem(bbd(bbs),latcc.next(), longcc.next(),locationname.next(),deti.next());
+
+            mClusterManager.addItem(offsetItem);
+            LatLng sydney = new LatLng(lat, lng);
+
+            // addClusterMarkers(mClusterManager);
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+            CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
+            googleMap.animateCamera(zoom);
+
+            mClusterManager.cluster();
+
+
+
+
+        }
+        mClusterManager.cluster();
+
+
+
     }
 
 

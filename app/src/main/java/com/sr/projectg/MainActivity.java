@@ -275,21 +275,27 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
         } else if (id == R.id.nav_item_abu_event) {
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
-            intent.putExtra("SRtitle", "1");
+            intent.putExtra("SRtitle", "Bump");
+            intent.putExtra("SRCode", "1");
+
 
             startActivity(intent);
         }
 
         else if (id == R.id.nav_item_atc_event) {
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
-            intent.putExtra("SRtitle", "2");
+            intent.putExtra("SRtitle", "Trafic Camera");
+            intent.putExtra("SRCode", "2");
+
 
             startActivity(intent);
         }
 
         else if (id == R.id.nav_item_aoth_event) {
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
-            intent.putExtra("SRtitle", "3");
+            intent.putExtra("SRtitle", "Other");
+            intent.putExtra("SRCode", "3");
+
 
             startActivity(intent);
         }
