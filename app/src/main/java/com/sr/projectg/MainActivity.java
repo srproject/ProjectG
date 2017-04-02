@@ -1,12 +1,18 @@
 package com.sr.projectg;
 
+import android.*;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -26,6 +32,7 @@ import android.view.ViewGroup;
 
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.sr.projectg.Fragment.CameraFragment;
 import com.sr.projectg.Fragment.HomeFragment;
@@ -50,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+    public static final int PERMISSIONS_MULTIPLE_REQUEST = 11;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +69,18 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
         setSupportActionBar(toolbar);
         //getSupportActionBar().setShowHideAnimationEnabled(true);
         getSupportActionBar().show();
+
+
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+
+
+            // only for JELLY_BEAN and newer versions
+
+            permi2();
+        }
+
+
+
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -72,11 +93,11 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        tabLayout.getTabAt(0).setIcon(R.drawable.camera);
-        tabLayout.getTabAt(1).setIcon(R.drawable.map);
-        tabLayout.getTabAt(2).setIcon(R.drawable.home);
-        tabLayout.getTabAt(3).setIcon(R.drawable.notifi);
-        tabLayout.getTabAt(4).setIcon(R.drawable.user);
+     //   tabLayout.getTabAt(0).setIcon(R.drawable.camera);
+        tabLayout.getTabAt(0).setIcon(R.drawable.map);
+        tabLayout.getTabAt(1).setIcon(R.drawable.home);
+        tabLayout.getTabAt(2).setIcon(R.drawable.notifi);
+        tabLayout.getTabAt(3).setIcon(R.drawable.user);
 
 
 
@@ -85,32 +106,25 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
             public void onTabSelected(TabLayout.Tab tab){
                 int position = tab.getPosition();
 
-
-
-                if(position ==0){
-                    getSupportActionBar().setTitle("Camera");
-
-
-                }
-                if (position==1){
+                if (position==0){
 
                     getSupportActionBar().setTitle("Map");
 
 
                 }
-                 if (position==2){
+                if (position==1){
 
                     getSupportActionBar().setTitle("TimeLine");
 
 
                 }
-                 if (position==3){
+                if (position==2){
 
                     getSupportActionBar().setTitle("Notifics");
 
 
                 }
-                 if (position==4){
+                if (position==3){
 
                     getSupportActionBar().setTitle("Profile");
 
@@ -121,8 +135,33 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-                getSupportActionBar().setTitle("Map");
+                int position = tab.getPosition();
 
+
+                if (position==0){
+
+                    getSupportActionBar().setTitle("Map");
+
+
+                }
+                if (position==1){
+
+                    getSupportActionBar().setTitle("TimeLine");
+
+
+                }
+                if (position==2){
+
+                    getSupportActionBar().setTitle("Notifics");
+
+
+                }
+                if (position==3){
+
+                    getSupportActionBar().setTitle("Profile");
+
+
+                }
             }
 
             @Override
@@ -133,30 +172,26 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
 
 
-                if(position ==0){
-                    getSupportActionBar().setTitle("Camera");
 
-
-                }
-                if (position==1){
+                if (position==0){
 
                     getSupportActionBar().setTitle("Map");
 
 
                 }
-                if (position==2){
+                if (position==1){
 
                     getSupportActionBar().setTitle("TimeLine");
 
 
                 }
-                if (position==3){
+                if (position==2){
 
                     getSupportActionBar().setTitle("Notifics");
 
 
                 }
-                if (position==4){
+                if (position==3){
 
                     getSupportActionBar().setTitle("Profile");
 
@@ -165,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
             }
         });
-        mViewPager.setCurrentItem(1);
+      //  mViewPager.setCurrentItem(1);
 
 
 
@@ -240,21 +275,21 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
         } else if (id == R.id.nav_item_abu_event) {
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
-            intent.putExtra("SRtitle", "Bump");
+            intent.putExtra("SRtitle", "1");
 
             startActivity(intent);
         }
 
         else if (id == R.id.nav_item_atc_event) {
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
-            intent.putExtra("SRtitle", "Trafic Camera");
+            intent.putExtra("SRtitle", "2");
 
             startActivity(intent);
         }
 
         else if (id == R.id.nav_item_aoth_event) {
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
-            intent.putExtra("SRtitle", "Other");
+            intent.putExtra("SRtitle", "3");
 
             startActivity(intent);
         }
@@ -317,32 +352,24 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
         @Override
         public Fragment getItem(int position) {
             switch (position) {
+
                 case 0:
-
-                    getSupportActionBar().setTitle("Camera");
-
-
-                    CameraFragment tab0=new CameraFragment();
-
-                    return  tab0;
-
-                case 1:
                     getSupportActionBar().setTitle("Map");
 
                     MapHomeFragment tab1=new MapHomeFragment();
 
                     return  tab1;
-                case 2:
+                case 1:
                     getSupportActionBar().setTitle("TimeLine");
 
                     HomeFragment tab2=new HomeFragment();
                     return  tab2;
-                case 3:
+                case 2:
                     getSupportActionBar().setTitle("Notifics");
 
                     NotiFragment tab3=new NotiFragment();
                     return  tab3;
-                case 4:
+                case 3:
                     getSupportActionBar().setTitle("Profile");
 
                     NewProFragment tab4=new NewProFragment();
@@ -358,7 +385,7 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 5;
+            return 4;
         }
 
         @Override
@@ -387,4 +414,20 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
             return null;
         }
     }
+
+    //method for peremission
+    public void permi2() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(new String[]{
+                            Manifest.permission.CAMERA,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.LOCATION_HARDWARE,
+                            Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_MULTIPLE_REQUEST);
+        }
+
+    }
+
+
 }

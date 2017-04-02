@@ -35,8 +35,20 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.drive.Drive;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.sr.projectg.Database.SQLiteDatabaseHelper;
 import com.sr.projectg.Fragment.MapHomeFragment;
 import com.sr.projectg.R;
@@ -54,7 +66,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Random;
 
-public class AddEventActivity extends AppCompatActivity implements LocationListener, Application.ActivityLifecycleCallbacks {
+public class AddEventActivity extends AppCompatActivity implements LocationListener, Application.ActivityLifecycleCallbacks ,OnMapReadyCallback {
 
 
      FloatingActionButton fabloc,fabsend;
@@ -83,6 +95,13 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
     ActionBar actionBar;
 
 
+    public GoogleMap mMap;
+    private LatLng srlocation =null;
+    Bitmap bitmap;
+    LatLng latLng=null;
+    GoogleApiClient mGoogleApiClient;
+
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,6 +109,13 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
         setContentView(R.layout.event_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapevent);
+        mapFragment.getMapAsync(this);
+
+
+
 
         makefile();
 
@@ -200,7 +226,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
         // FindViewById
         imageaddmatab = (ImageView) findViewById(R.id.imageaddmatab);
-        samplemap = (ImageView) findViewById(R.id.samplemap);
+        //samplemap = (ImageView) findViewById(R.id.samplemap);
 
         // FindViewById//
         detailscu= (TextView) findViewById(R.id.detailscu);
@@ -281,8 +307,6 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                         Toast.makeText(getApplicationContext(),"حبيبي تسلم event",Toast.LENGTH_SHORT).show();
                         myDB.copyDatabase(getApplicationContext(),"data.db");
 
-                        MapHomeFragment  mapHomeFragment= new MapHomeFragment();
-                        mapHomeFragment.zoom();
 
                         finish();
 
@@ -353,7 +377,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
                   mapbitmap = BitmapFactory.decodeStream(new FileInputStream(f));
 
-                samplemap.setImageBitmap(mapbitmap);
+              //  samplemap.setImageBitmap(mapbitmap);
             }
             else {
                 //Intent locIntent = new Intent(getApplication(),MapActivity.class);
@@ -393,34 +417,40 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
         if (requestCode == PLACE_PICKER_REQUEST
                 && resultCode == Activity.RESULT_OK){
+            if(data!=null) {
+
+                final Place place = PlacePicker.getPlace(this, data);
+                final CharSequence name = place.getName();
+                final CharSequence address = place.getAddress();
+
+                String attributions = (String) place.getAttributions();
+                if (attributions == null) {
+                    attributions = "";
+                }
 
 
-            final Place place = PlacePicker.getPlace(this, data);
-            final CharSequence name = place.getName();
-            final CharSequence address = place.getAddress();
+                sr1 = place.getLatLng().latitude;
+                sr2 = place.getLatLng().longitude;
 
-            String attributions = (String) place.getAttributions();
-            if (attributions == null) {
-                attributions = "";
+
+                writeToFile(String.valueOf(sr1), "sr1", getApplicationContext());
+                writeToFile(String.valueOf(sr2), "sr2", getApplicationContext());
+                writeToFile(name + "," + address + "," + attributions, "sr3", getApplicationContext());
+
+                loadlocaiton();
+                setupMap();
+
+
+
+                 CaptureMapScreen();
+
+
+                // Intent intent = new Intent(AddEventActivity.this, MapActivity.class);
+                // startActivity(intent);
+                // finish();
+
+
             }
-
-
-              sr1=place.getLatLng().latitude;
-              sr2=place.getLatLng().longitude;
-
-
-
-            writeToFile(String.valueOf(sr1),"sr1",getApplicationContext());
-            writeToFile(String.valueOf(sr2),"sr2",getApplicationContext());
-             writeToFile(name+","+address+","+attributions,"sr3",getApplicationContext());
-
-            Intent intent = new Intent(AddEventActivity.this, MapActivity.class);
-            startActivity(intent);
-            // finish();
-
-
-
-
 
         }
 
@@ -669,17 +699,258 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
         File folder = new File(Environment.getExternalStorageDirectory() + File.separator + "/" + appname + "/Text/");
         if (!folder.exists()) {
             folder.mkdirs();
-Log.i("SR","eventFileMaked");
+            Log.i("SR","eventFileMaked");
+        }
+
+
+         File folder2 = new File(Environment.getExternalStorageDirectory() + File.separator + "/" + appname + "/Image/");
+        if (!folder.exists()) {
+            folder.mkdirs();
+            Log.i("SR","mapfoldermaked");
+
         }
 
     }
 
-    public static void title_bump(){
 
 
-        title="bump";
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+        mMap = googleMap;
+
+        setupMap();
+    }
+
+
+
+    private void setupMap() {
+
+
+
+        listener = new android.location.LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 70);
+                mMap.animateCamera(cameraUpdate);
+
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.getUiSettings().setMapToolbarEnabled(false);
+
+        if (srlocation!=null) {
+            Marker kiel = mMap.addMarker(new MarkerOptions()
+                    .position(srlocation)
+                    .title("Event Location")
+                    .icon(bbd(actionBar.getTitle().toString())));
+
+
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(srlocation, 17));
+
+        }
+
+
+
+        //  mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+    }
+
+
+    private boolean loadlocaiton(){
+
+        String appname = getString(R.string.app_name);
+
+        //  readFileAsString(Environment.getExternalStorageDirectory() + File.separator + "/" + appname + "/Text/");
+
+        String path1 = Environment.getExternalStorageDirectory() + File.separator + "/" + appname + "/Text/";
+        String path2 = Environment.getExternalStorageDirectory() + File.separator + "/" + appname + "/Text/";
+
+
+//Get the text file
+        File file1 = new File(path1,"sr1.txt");
+        File file2 = new File(path2,"sr2.txt");
+
+//Read text from file
+        StringBuilder text1 = new StringBuilder();
+        StringBuilder text2 = new StringBuilder();
+
+        try {
+
+            BufferedReader br1 = new BufferedReader(new FileReader(file1));
+            BufferedReader br2 = new BufferedReader(new FileReader(file2));
+
+            String line1;
+            String line2;
+
+            while ((line1 = br1.readLine()) != null) {
+                text1.append(line1);
+                Log.i("sr","done read");
+
+            }
+            br1.close();
+            while ((line2 = br2.readLine()) != null) {
+                text2.append(line2);
+
+            }
+            br2.close();
+
+        }
+        catch (IOException e) {
+            //You'll need to add proper error handling here
+            return false;
+        }
+
+//Find the view by its id
+
+//Set the text
+        // tv.setText(text.toString());
+
+        double contents1 = Double.parseDouble(new String(text1.toString()));
+        double contents2 = Double.parseDouble(new String(text2.toString()));
+
+
+        srlocation=new LatLng(contents1, contents2);
+        Log.i("sr","contents1:"+text1.toString()+"-contents2:"+text2.toString());
+        if (text1==null){
+
+            return false;
+        }
+
+        return true;
 
 
     }
+
+    public void CaptureMapScreen() {
+
+        new CountDownTimer(7000, 100) {
+
+            public void onTick(long millisUntilFinished) {
+
+
+                findViewById(R.id.loadingmpe).setVisibility(View.VISIBLE);
+
+
+             }
+
+            public void onFinish() {
+                findViewById(R.id.loadingmpe).setVisibility(View.GONE);
+
+                GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
+
+
+                    @Override
+                    public void onSnapshotReady(Bitmap snapshot) {
+                        // TODO Auto-generated method stub
+                        bitmap = snapshot;
+
+                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 40, bytes);
+                        String appname =  getString(R.string.app_name);
+                        File folder = new File(Environment.getExternalStorageDirectory() + File.separator + "/" + appname + "/Image/");
+                        if (!folder.exists()) {
+                            folder.mkdirs();
+                            Log.i("SR","mapfoldermaked");
+                        } else {
+                            File f2 = new File(Environment.getExternalStorageDirectory() + File.separator + "/" + appname + "/Image/location_add.png");
+
+
+                            try {
+                                f2.createNewFile();
+                                FileOutputStream fo = new FileOutputStream(f2);
+                                fo.write(bytes.toByteArray());
+                                fo.close();
+
+
+
+                                Toast.makeText(getApplicationContext(), "Location Update", Toast.LENGTH_SHORT).show();
+
+
+
+
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+
+
+
+                        }
+
+                    }
+
+
+                };
+
+
+                mMap.snapshot(callback);
+
+
+
+            }
+
+        }.start();
+
+
+
+
+    }
+
+
+
+
+    private BitmapDescriptor bbd(String type){
+
+        BitmapDescriptor bb = null;
+        int tt=Integer.parseInt(type);
+
+        if(tt==1){
+
+            bb=BitmapDescriptorFactory.fromResource(R.mipmap.newbump);
+
+        }
+        if(tt==2){
+
+            bb=BitmapDescriptorFactory.fromResource(R.mipmap.camt);
+
+        }
+        if(tt==3){
+
+            bb=BitmapDescriptorFactory.fromResource(R.mipmap.other);
+
+        }
+
+
+
+        return bb;
+    }
+
 
 }

@@ -7,20 +7,27 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.accessibility.AccessibilityManagerCompat;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -32,6 +39,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -44,7 +52,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.google.maps.android.clustering.ClusterManager;
-import com.sr.projectg.clustering.AppClusterItem;
+import com.sr.projectg.clustering.MyItem;
+import com.sr.projectg.clustering.OwnRendring;
 
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -77,25 +86,57 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
     SQLiteDatabaseHelper SQLITEHELPER;
     SQLiteDatabase SQLITEDATABASE;
-    Cursor cursor;
+    Cursor cursor,cursor2;
 
     ArrayList<LatLng> latLngs = new ArrayList<LatLng>();
-    ArrayList<Double> latc = new ArrayList<>();
-    ArrayList<Double> longc = new ArrayList<>();
+    static ArrayList<Double> latc = new ArrayList<>();
+    static ArrayList<Double> longc = new ArrayList<>();
     ArrayList<String> location_name = new ArrayList<String>();
     ArrayList<String> det = new ArrayList<String>();
 
     LatLng newLatLng;
 
 
-    ClusterManager<AppClusterItem> mClusterManager;
+    static ClusterManager<MyItem> mClusterManager;
+
+    ProgressBar loadingmpf;
+    BitmapDescriptor icon;
+    String bbs;
+    int bbi=0;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.map_fragment, container, false);
+        final View rootView = inflater.inflate(R.layout.map_fragment, container, false);
 
         getdataevent();
+
+        mMapView = (MapView) rootView.findViewById(R.id.mapView);
+        mMapView.onCreate(savedInstanceState);
+
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.LOCATION_HARDWARE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.LOCATION_HARDWARE)) {
+
+               // mMapView.setVisibility(View.VISIBLE);
+
+            }
+            else {
+
+               // mMapView.onStop();
+               // mMapView.setVisibility(View.GONE);
+
+            }
+        }
+
+        loadingmpf=(ProgressBar) rootView.findViewById(R.id.loadingmpf);
+       // loadingmpf.setVisibility(View.VISIBLE);
+
+
 
 
 
@@ -104,8 +145,10 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
         //startupmap();
 
-        mMapView = (MapView) rootView.findViewById(R.id.mapView);
-        mMapView.onCreate(savedInstanceState);
+
+
+       //  mMapView.getMapAsync((OnMapReadyCallback) getContext());
+
 
         mMapView.onResume(); // needed to get the map to display immediately
         locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
@@ -123,11 +166,38 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
                 googleMap = mMap;
 
 
-                mClusterManager = new ClusterManager<AppClusterItem>(getActivity(), googleMap);
+                mClusterManager = new ClusterManager<MyItem>(getActivity(), googleMap);
+                mClusterManager.setRenderer(new OwnRendring(getContext(),googleMap,mClusterManager));
+                mClusterManager.clearItems();
 
                 // Point the map's listeners at the listeners implemented by the cluster manager.
                 googleMap.setOnCameraChangeListener(mClusterManager);
                 googleMap.setOnMarkerClickListener(mClusterManager);
+                googleMap.setMyLocationEnabled(true);
+                googleMap.getUiSettings().setMyLocationButtonEnabled(true);
+                googleMap.getUiSettings().setZoomControlsEnabled(true);
+                googleMap.getUiSettings().setCompassEnabled(true);
+                googleMap.setTrafficEnabled(true);
+
+                DisplayMetrics displayMetrics = getContext().getResources()
+                        .getDisplayMetrics();
+
+                int screenWidthInPix =  displayMetrics.widthPixels;
+
+                int screenheightInPix = displayMetrics.heightPixels;
+                Log.i("SR SCrean","w: "+screenWidthInPix+"h:"+screenheightInPix);
+                if(screenWidthInPix<=480&&screenheightInPix<=800){
+
+                    googleMap.setPadding(0, 0, 0, 300);
+
+                }
+                else {
+                    googleMap.setPadding(0, 0, 0, 700);
+
+
+                }
+
+
 
 
 
@@ -164,26 +234,59 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
                 Iterator<String> deti = det.iterator();
                 Iterator<Double> latcc = latc.iterator();
                 Iterator<Double> longcc = longc.iterator();
-
-                while (latcc.hasNext()) {
-
+               // addClusterMarkers(mClusterManager);
 
 
-                       // googleMap.addMarker(new MarkerOptions().position(latLng.next()).snippet(deti.next()).title(locationname.next()));
-                        AppClusterItem offsetItem = new AppClusterItem(latcc.next(), longcc.next());
+                icon = BitmapDescriptorFactory.fromResource(R.mipmap.newbump);
+
+
+                if(bbs=="Bump"){
+                    bbi=1;
+
+                }
+                else if(bbs=="Trafic Camera"){
+                    bbi=2;
+
+                }
+                 while (latcc.hasNext()&&deti.hasNext()) {
+
+
+
+                     // googleMap.addMarker(new MarkerOptions().position(latLng.next()).snippet(deti.next()).title(locationname.next()));
+
+                     bbs=locationname.next();
+                    // Log.i("SR0007",bbs);
+                     //bbi=1;
+
+
+
+
+
+                     MyItem offsetItem = new MyItem(bbd(bbs),latcc.next(), longcc.next(),bbs,deti.next());
 
                         mClusterManager.addItem(offsetItem);
                         LatLng sydney = new LatLng(lat, lng);
 
                        // addClusterMarkers(mClusterManager);
                         googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(10);
+                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
                         googleMap.animateCamera(zoom);
 
 
 
 
+
                 }
+                mClusterManager.cluster();
+
+                if(!latcc.hasNext()){
+
+                    loadingmpf.setVisibility(View.GONE);
+
+
+                }
+
+
                 ///LatLng sydney = new LatLng(lat, lng);
 
 //                googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
@@ -232,6 +335,8 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
                 // For zooming automatically to the location of the marker
 
+
+
             }
         });
 
@@ -247,7 +352,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
     @Override
     public void onPause() {
         super.onPause();
-        mMapView.onStop();
+     //   mMapView.onPause();
     }
 
     @Override
@@ -467,8 +572,29 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
    public static void zoom(){
 
-       mMapView.onStop();
-       mMapView.onResume();
+       googleMap.clear();
+       Iterator<Double> latcc = latc.iterator();
+       Iterator<Double> longcc = longc.iterator();
+
+       while (latcc.hasNext()) {
+
+
+
+           // googleMap.addMarker(new MarkerOptions().position(latLng.next()).snippet(deti.next()).title(locationname.next()));
+         //  MyItem offsetItem = new MyItem(null,latcc.next(), longcc.next(),"SAMEH","SAMEH");
+
+         //  mClusterManager.addItem(offsetItem);
+           LatLng sydney = new LatLng(lat, lng);
+
+           // addClusterMarkers(mClusterManager);
+           googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+           CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
+           googleMap.animateCamera(zoom);
+
+
+
+
+       }
 
    }
 
@@ -484,7 +610,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
     }
 
-    private void addClusterMarkers(ClusterManager<AppClusterItem> mClusterManager) {
+    private void addClusterMarkers(ClusterManager<MyItem> mClusterManager) {
 
         // Set some lat/lng coordinates to start with.
         double latitude = 30.044420;
@@ -494,11 +620,40 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
         for (int i = 0; i < 10; i++) {
             double offset = i / 60d;
             longitude = longitude + offset;
-            AppClusterItem offsetItem = new AppClusterItem(latitude, longitude);
+           // MyItem offsetItem = new MyItem(null,latitude, longitude,"SAMEH","SAMEH");
 
-            mClusterManager.addItem(offsetItem);
-        }
+           // mClusterManager.addItem(offsetItem);
+         }
     }
+
+    private  BitmapDescriptor bbd(String type){
+
+        BitmapDescriptor bb = null;
+        int tt=Integer.parseInt(type);
+
+        if(tt==1){
+
+            bb=BitmapDescriptorFactory.fromResource(R.mipmap.newbump);
+
+        }
+        if(tt==2){
+
+            bb=BitmapDescriptorFactory.fromResource(R.mipmap.camt);
+
+        }
+        if(tt==3){
+
+            bb=BitmapDescriptorFactory.fromResource(R.mipmap.other);
+
+        }
+
+
+
+        return bb;
+    }
+
+
+
 }
 
 

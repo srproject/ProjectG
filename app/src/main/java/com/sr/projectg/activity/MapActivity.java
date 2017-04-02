@@ -44,8 +44,7 @@ import java.util.Locale;
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback, com.google.android.gms.location.LocationListener {
 
     public GoogleMap mMap;
-    private final LatLng HAMBURG = new LatLng(30.039661, 31.265244);
-    private LatLng srlocation =null;
+     private LatLng srlocation =null;
 
 
     String address;
@@ -60,7 +59,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
 
 
     Bitmap bitmap;
-    FloatingActionButton fabsetmap;
 
     LocationManager locationManager;
     private android.location.LocationListener listener;
@@ -482,7 +480,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback,
                         .fromResource(R.mipmap.ic_location_on_black_48dp)));
 
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(srlocation, 15));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(srlocation, 25));
 
 
 
