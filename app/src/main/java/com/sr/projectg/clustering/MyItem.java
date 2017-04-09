@@ -20,6 +20,7 @@ public class MyItem implements ClusterItem {
 
     public MyItem(BitmapDescriptor ic, Double lat, Double lng, String tit, String sni) {
         mPosition = new LatLng(lat, lng);
+
         icon = ic;
         title = tit;
         snippet = sni;

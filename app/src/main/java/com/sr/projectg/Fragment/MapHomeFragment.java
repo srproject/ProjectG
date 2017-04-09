@@ -96,14 +96,17 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
     ArrayList<String> code = new ArrayList<String>();
 
     LatLng newLatLng;
+    private ProgressBar progressBarmapf;
 
 
     static ClusterManager<MyItem> mClusterManager;
 
-    ProgressBar loadingmpf;
-    BitmapDescriptor icon;
+     BitmapDescriptor icon;
     String bbs;
     int bbi=0;
+     static int count = 0;
+    MyItem offsetItem;
+
 
 
     @Override
@@ -114,6 +117,10 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
+        mMapView.setDrawingCacheEnabled(false);
+         progressBarmapf= (ProgressBar) rootView.findViewById(R.id.loadingmpfpb);
+        progressBarmapf.setVisibility(View.VISIBLE);
+
 
         if (ContextCompat.checkSelfPermission(getContext(),
                 Manifest.permission.LOCATION_HARDWARE)
@@ -134,9 +141,6 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
             }
         }
 
-        loadingmpf=(ProgressBar) rootView.findViewById(R.id.loadingmpf);
-       // loadingmpf.setVisibility(View.VISIBLE);
-
 
 
 
@@ -151,7 +155,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
        //  mMapView.getMapAsync((OnMapReadyCallback) getContext());
 
 
-        mMapView.onResume(); // needed to get the map to display immediately
+    //    mMapView.onResume(); // needed to get the map to display immediately
         locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
 
 
@@ -160,6 +164,8 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -213,7 +219,47 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
                 googleMap.getUiSettings().setRotateGesturesEnabled(true);
 
 
-                addcluster();
+
+
+
+
+
+                googleMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                    public void onMapLoaded() {
+
+                      // addcluster();
+
+
+                        progressBarmapf.setVisibility(View.GONE);
+
+
+
+
+                        LatLng sydney = new LatLng(lat, lng);
+
+
+
+
+                        // addClusterMarkers(mClusterManager);
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
+                        googleMap.animateCamera(zoom);
+
+
+
+
+                    }
+
+                });
+
+
+
+
+
+
+
+
+
 
 
 
@@ -225,39 +271,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
   //                  googleMap.animateCamera(zoom);
 
 
-                listener = new LocationListener() {
-                    @Override
-                    public void onLocationChanged(Location location) {
 
-                        if (location != null) {
-
-                            ff = new LatLng(location.getLatitude(), location.getLongitude());
-
-                            CameraPosition cameraPosition = new CameraPosition.Builder().target(ff).zoom(16).tilt(20).build();
-                            //   googleMap.clear();
-                            // googleMap.addMarker(new MarkerOptions().position(ff).icon(BitmapDescriptorFactory.fromResource(R.mipmap.ic_location_on_black_48dp)).title("This My Location"));
-                            //   googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition), 700, null);
-
-
-                        }
-
-                    }
-
-                    @Override
-                    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-                    }
-
-                    @Override
-                    public void onProviderEnabled(String provider) {
-
-                    }
-
-                    @Override
-                    public void onProviderDisabled(String provider) {
-
-                    }
-                };
                 getlatlong();
 
 //                addClusterMarkers(mClusterManager);
@@ -276,27 +290,30 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
     @Override
     public void onResume() {
         super.onResume();
-        mMapView.onPause();
-        mMapView.onResume();
+         mMapView.onResume();
         Log.i("SR0009","Re");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
             mMapView.getOverlay().clear();
         }
-        mMapView.invalidate();
+
 
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mMapView.onPause();
+      //  mMapView.onStop();
+      //  mClusterManager.cluster();
+
         Log.i("SR0009","Pu");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mMapView.onStop();
+       // mMapView.onStop();
+        Log.i("SR0009","Destroy");
+
     }
 
     @Override
@@ -512,30 +529,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
    public static void zoom(){
 
-       googleMap.clear();
-       Iterator<Double> latcc = latc.iterator();
-       Iterator<Double> longcc = longc.iterator();
-
-       while (latcc.hasNext()) {
-
-
-
-           // googleMap.addMarker(new MarkerOptions().position(latLng.next()).snippet(deti.next()).title(locationname.next()));
-         //  MyItem offsetItem = new MyItem(null,latcc.next(), longcc.next(),"SAMEH","SAMEH");
-
-         //  mClusterManager.addItem(offsetItem);
-           LatLng sydney = new LatLng(lat, lng);
-
-           // addClusterMarkers(mClusterManager);
-           googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-           CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
-           googleMap.animateCamera(zoom);
-
-
-
-
-       }
-
+       count = 0;
    }
 
     private void startupmap(){
@@ -595,6 +589,51 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
     public void addcluster(){
 
+        Iterator<LatLng> latLng = latLngs.iterator();
+        Iterator<String> locationname = location_name.iterator();
+        Iterator<String> deti = det.iterator();
+        Iterator<String> codei = code.iterator();
+        Iterator<Double> latcc = latc.iterator();
+        Iterator<Double> longcc = longc.iterator();
+
+         while (latcc.hasNext()) {
+            // mClusterManager.clearItems();
+            // googleMap.addMarker(new MarkerOptions().position(latLng.next()).snippet(deti.next()).title(locationname.next()));
+             bbs=codei.next();
+
+
+
+            offsetItem = new MyItem(bbd(bbs), latcc.next(), longcc.next(), locationname.next(), deti.next());
+
+
+
+                mClusterManager.addItem(offsetItem);
+                mClusterManager.cluster();
+
+
+
+            Log.i("SR0000",String.valueOf(count));
+
+
+            //
+
+
+
+        }
+
+
+
+
+
+
+
+
+    }
+
+
+    public void getitem(){
+
+
 
 
         Iterator<LatLng> latLng = latLngs.iterator();
@@ -605,38 +644,37 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
         Iterator<Double> longcc = longc.iterator();
 
 
+        // mClusterManager.clearItems();
+
+
 
         while (latcc.hasNext()&&deti.hasNext()) {
-
-
-
+            // mClusterManager.clearItems();
             // googleMap.addMarker(new MarkerOptions().position(latLng.next()).snippet(deti.next()).title(locationname.next()));
 
             bbs=codei.next();
-            Log.i("SR0007",bbs);
-
-
-            //    mClusterManager.clearItems();
 
 
 
-            MyItem offsetItem = new MyItem(bbd(bbs),latcc.next(), longcc.next(),locationname.next(),deti.next());
-
-            mClusterManager.addItem(offsetItem);
-            LatLng sydney = new LatLng(lat, lng);
-
-            // addClusterMarkers(mClusterManager);
-            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-            CameraUpdate zoom = CameraUpdateFactory.zoomTo(12);
-            googleMap.animateCamera(zoom);
-
-            mClusterManager.cluster();
 
 
+
+
+
+            //
+            if(!latcc.hasNext()) {
+
+                count++;
+            }
+            Log.i("SR00000",String.valueOf(count));
 
 
         }
-        mClusterManager.cluster();
+
+
+
+
+
 
 
 

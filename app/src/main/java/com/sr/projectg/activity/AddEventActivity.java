@@ -310,7 +310,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                         Toast.makeText(getApplicationContext(),"حبيبي تسلم event",Toast.LENGTH_SHORT).show();
                         myDB.copyDatabase(getApplicationContext(),"data.db");
 
-
+                        map.zoom();
                         finish();
 
 
@@ -330,6 +330,8 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
         fabloc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                findViewById(R.id.loadingmpe).setVisibility(View.VISIBLE);
+
 
                 PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
 
@@ -454,6 +456,14 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
 
             }
+
+        }
+        if (requestCode == PLACE_PICKER_REQUEST
+                && resultCode == Activity.RESULT_CANCELED){
+
+
+            findViewById(R.id.loadingmpe).setVisibility(View.GONE);
+
 
         }
 
@@ -852,18 +862,13 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
     }
 
     public void CaptureMapScreen() {
-
-        new CountDownTimer(7000, 100) {
-
-            public void onTick(long millisUntilFinished) {
+        findViewById(R.id.loadingmpe).setVisibility(View.VISIBLE);
 
 
-                findViewById(R.id.loadingmpe).setVisibility(View.VISIBLE);
 
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            public void onMapLoaded() {
 
-             }
-
-            public void onFinish() {
                 findViewById(R.id.loadingmpe).setVisibility(View.GONE);
 
                 GoogleMap.SnapshotReadyCallback callback = new GoogleMap.SnapshotReadyCallback() {
@@ -915,10 +920,8 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                 mMap.snapshot(callback);
 
 
-
             }
-
-        }.start();
+        });
 
 
 
@@ -955,4 +958,10 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
     }
 
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        map.zoom();
+    }
 }

@@ -3,7 +3,9 @@ package com.sr.projectg;
 import android.*;
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -24,6 +26,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,12 +38,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.sr.projectg.Firebase.FireLogin;
+import com.sr.projectg.Firebase.FireRegistration;
 import com.sr.projectg.Fragment.CameraFragment;
 import com.sr.projectg.Fragment.HomeFragment;
 import com.sr.projectg.Fragment.MapHomeFragment;
 import com.sr.projectg.Fragment.NewProFragment;
 import com.sr.projectg.Fragment.NotiFragment;
 import com.sr.projectg.activity.AddEventActivity;
+import com.sr.projectg.activity.LoginActivity;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class MainActivity extends AppCompatActivity implements   NavigationView.OnNavigationItemSelectedListener {
 
@@ -58,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
      */
     private ViewPager mViewPager;
     public static final int PERMISSIONS_MULTIPLE_REQUEST = 11;
+    MapHomeFragment map;
+
 
 
     @Override
@@ -69,6 +81,24 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
         setSupportActionBar(toolbar);
         //getSupportActionBar().setShowHideAnimationEnabled(true);
         getSupportActionBar().show();
+/*
+//For KeyHash for facebook login setup
+
+        try {
+            PackageInfo info = getPackageManager().getPackageInfo(
+                    "com.sr.projectg",
+                    PackageManager.GET_SIGNATURES);
+            for (Signature signature : info.signatures) {
+                MessageDigest md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+                Log.d("KeyHash", Base64.encodeToString(md.digest(), Base64.DEFAULT));
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+
+        } catch (NoSuchAlgorithmException e) {
+
+        }
+ */
 
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -269,6 +299,8 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
         } else if (id == R.id.nav_item_Profile) {
 
+            Intent intent = new Intent(MainActivity.this, FireRegistration.class);
+            startActivity(intent);
 
         } else if (id == R.id.nav_item_Contacts) {
 
@@ -277,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
             intent.putExtra("SRtitle", "Bump");
             intent.putExtra("SRCode", "1");
-
+            map.zoom();
 
             startActivity(intent);
         }
@@ -286,6 +318,7 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
             intent.putExtra("SRtitle", "Trafic Camera");
             intent.putExtra("SRCode", "2");
+            map.zoom();
 
 
             startActivity(intent);
@@ -295,8 +328,13 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
             intent.putExtra("SRtitle", "Other");
             intent.putExtra("SRCode", "3");
+            map.zoom();
 
 
+            startActivity(intent);
+        }
+        else if (id == R.id.nav_item_signin) {
+            Intent intent = new Intent(MainActivity.this, FireLogin.class);
             startActivity(intent);
         }
 
@@ -360,23 +398,19 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
             switch (position) {
 
                 case 0:
-                    getSupportActionBar().setTitle("Map");
 
                     MapHomeFragment tab1=new MapHomeFragment();
 
                     return  tab1;
                 case 1:
-                    getSupportActionBar().setTitle("TimeLine");
 
                     HomeFragment tab2=new HomeFragment();
                     return  tab2;
                 case 2:
-                    getSupportActionBar().setTitle("Notifics");
 
                     NotiFragment tab3=new NotiFragment();
                     return  tab3;
                 case 3:
-                    getSupportActionBar().setTitle("Profile");
 
                     NewProFragment tab4=new NewProFragment();
                     return  tab4;
