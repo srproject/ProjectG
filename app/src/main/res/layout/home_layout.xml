@@ -45,11 +45,8 @@
             app:cardCornerRadius="1dp"
                 android:divider="#E6E6E6"
                 android:dividerHeight="5px"
-            android:layout_alignTop="@+id/hprofile"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginRight="17dp"
-             android:id="@+id/cardView">
+            android:id="@+id/cardView"
+            android:layout_alignTop="@+id/hprofile">
 
 
             <TextView

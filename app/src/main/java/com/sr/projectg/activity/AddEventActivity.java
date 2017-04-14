@@ -9,13 +9,19 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,6 +31,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -33,10 +40,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.drive.Drive;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.CameraUpdate;
@@ -49,18 +59,35 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.sr.projectg.Database.SQLiteDatabaseHelper;
+import com.sr.projectg.Firebase.FireEvent;
 import com.sr.projectg.Fragment.MapHomeFragment;
 import com.sr.projectg.R;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -78,6 +105,8 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
      ImageView samplemap;
      int PLACE_PICKER_REQUEST=1;
      int CAMERA_PIC_REQUEST = 2;
+    private static Uri outputFileUri;
+
 
     double sr1,sr2;
     StringBuilder text1 ,text2,text3;
@@ -104,12 +133,55 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
     Bundle bundle;
 
 
+    // [START declare_auth]
+    private static FirebaseAuth mAuth;
+    private static FirebaseStorage storage;
+    StorageReference eventsr,eventsr2;
+    StorageReference storageRef,storageRef2;
+    FireEvent fireEvent;
+    String id,name  ,email,photourl,mapurl ,evid ;
+
+
+
+
+    // [END declare_auth]
+
+    // [START declare_auth_listener]
+    DatabaseReference db;
+    private static final String TAG = "SRFire0";
+
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.event_layout);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        FirebaseApp.initializeApp(this);
+        db = FirebaseDatabase.getInstance().getReference();
+
+
+
+        mAuth = FirebaseAuth.getInstance();
+        storage=FirebaseStorage.getInstance();
+        // [END initialize_auth]
+
+        // Create a storage reference from our app
+
+            evid = eventid();
+            name = mAuth.getCurrentUser().getDisplayName().toString();
+            email = mAuth.getCurrentUser().getEmail().toString();
+
+            storageRef = storage.getReference();
+            storageRef2 = storage.getReference();
+            StorageReference userprofile;
+            fireEvent = new FireEvent();
+            eventsr = storageRef.child("event/" + evid + ".jpg");
+            eventsr2 = storageRef2.child("event/" + evid + "-map" + ".jpg");
+
+
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapevent);
@@ -253,11 +325,11 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                         detailscu.setText(Integer.toString(dc2));
 
                     }
-                    if(detailsmatab.length()<49){
+                    if(detailsmatab.length()<29){
 
                         detailscu.setTextColor(Color.parseColor("#FF0000"));
                     }
-                    if (detailsmatab.length()>=49){
+                    if (detailsmatab.length()>=30){
                         detailscu.setTextColor(Color.parseColor("#3CDE00"));
 
 
@@ -277,18 +349,160 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
         fabsend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (!validateForm()) {
+                    return;
+                }
 
-                if(detailsmatab.length()<0){
-
-                    Toast.makeText(getApplicationContext(), "Minimum number of characters is 50", Toast.LENGTH_SHORT).show();
 
 
+                if(Pbitmap!=null){
+
+                        if(bitmap!=null) {
+
+
+                            Bitmap bitmapg = Pbitmap;
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            bitmapg.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+
+                            Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(baos.toByteArray()));
+
+                            Log.e("Original   dimensions", bitmapg.getWidth()+" "+bitmapg.getHeight());
+                            Log.e("Compressed dimensions", decoded.getWidth()+" "+decoded.getHeight());
+
+                            byte[] data = baos.toByteArray();
+
+
+                            Bitmap bitmapmp = bitmap;
+                            ByteArrayOutputStream baosmp = new ByteArrayOutputStream();
+                            bitmapmp.compress(Bitmap.CompressFormat.JPEG, 100,baosmp );
+                            Bitmap decoded2 = BitmapFactory.decodeStream(new ByteArrayInputStream(baosmp.toByteArray()));
+
+                            Log.e("Original   dimensions", bitmapmp.getWidth()+" "+bitmapmp.getHeight());
+                            Log.e("Compressed dimensions", decoded2.getWidth()+" "+decoded2.getHeight());
+
+                            byte[] datamp = baosmp.toByteArray();
+
+
+                            UploadTask uploadTask = eventsr.putBytes(data);
+                            final UploadTask uploadTaskmp = eventsr2.putBytes(datamp);
+                            uploadTask.addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.i(TAG, name + " photo ERORR");
+
+                                }
+                            }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                    photourl = task.getResult().getDownloadUrl().toString();
+
+                                }
+                            }) ;
+
+                                    uploadTaskmp.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task2) {
+                                            mapurl = task2.getResult().getDownloadUrl().toString();
+
+                                            Firebase.setAndroidContext(AddEventActivity.this);
+                                            final Firebase ref = new Firebase("https://projectg-70ce9.firebaseio.com/ACCOUNT");
+                                            Query query = ref.orderByChild("account_email").equalTo(email);
+                                            query.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
+
+
+                                                    for (com.firebase.client.DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                                        id=postSnapshot.child("account_id").getValue().toString();
+                                                    }
+
+
+
+
+                                                }
+
+                                                @Override
+                                                public void onCancelled(FirebaseError firebaseError) {
+
+                                                }
+                                            });
+
+
+
+                                            fireEvent.setEvent_account_id(id);
+                                            fireEvent.setEvent_id(evid);
+                                            fireEvent.setEvent_type(bundle.getString("SRtitle"));
+                                            fireEvent.setEvent_type_code(bundle.getString("SRCode"));
+                                            fireEvent.setEvent_photo_url(photourl);
+                                            fireEvent.setEvent_map_snap_url(mapurl);
+                                            fireEvent.setEvent_det(detailsmatab.getText().toString());
+                                            fireEvent.setEvent_longitude(text2.toString());
+                                            fireEvent.setEvent_latitude(text1.toString());
+                                            fireEvent.setEvent_locnam(text3.toString());
+                                            fireEvent.setEvent_date_time(datematab.getText().toString()
+                                                    + "-" + timematab.getText().toString());
+
+
+                                            db.child("EVENT").push().setValue(fireEvent);
+                                            db.addChildEventListener(new ChildEventListener() {
+                                                @Override
+                                                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                                                    Toast.makeText(getApplicationContext(),"حبيبي تسلم",Toast.LENGTH_SHORT).show();
+                                                    finish();
+
+
+                                                }
+
+                                                @Override
+                                                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+                                                }
+
+                                                @Override
+                                                public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                                                }
+
+                                                @Override
+                                                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+
+
+                                        }
+                                    });
+
+
+
+                        }
+                        else{
+
+                            Toast.makeText(getApplicationContext(),"Get location",Toast.LENGTH_SHORT).show();
+
+
+                        }
+
+                }
+                else{
+
+                    Toast.makeText(getApplicationContext(),"Add photo",Toast.LENGTH_SHORT).show();
 
 
                 }
-                else {
 
 
+
+
+
+
+/*
                      boolean inserted =myDB.insertDataforevent(getidevent()
                              ,"ac5454"
                              ,bundle.getString("SRtitle")
@@ -321,10 +535,11 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                         Toast.makeText(getApplicationContext()," مش تسلم event",Toast.LENGTH_SHORT).show();
                     }
 
-
-
+*/
                 }
-            }
+
+
+
         });
 
         fabloc.setOnClickListener(new View.OnClickListener() {
@@ -356,8 +571,11 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
             @Override
             public void onClick(View view) {
 
+
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
                 setResult(RESULT_OK, cameraIntent);
+
                 startActivityForResult(cameraIntent, CAMERA_PIC_REQUEST);
 
 
@@ -679,7 +897,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
     public static byte[] getBitmapAsByteArray(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 0, outputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
         return outputStream.toByteArray();
     }
 
@@ -880,7 +1098,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                         bitmap = snapshot;
 
                         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 40, bytes);
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
                         String appname =  getString(R.string.app_name);
                         File folder = new File(Environment.getExternalStorageDirectory() + File.separator + "/" + appname + "/Image/");
                         if (!folder.exists()) {
@@ -964,4 +1182,64 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
         map.zoom();
     }
+
+
+    private Bitmap getBitmapFromUri(Uri uri) throws IOException {
+        ParcelFileDescriptor parcelFileDescriptor =
+                getContentResolver().openFileDescriptor(uri, "r");
+        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+        parcelFileDescriptor.close();
+        return image;
+    }
+
+
+    private boolean validateForm() {
+        boolean valid = true;
+
+        if (TextUtils.isEmpty(loc.getText().toString())  ) {
+            loc.setError("Get your location");
+            valid = false;
+
+        } else {
+            loc.setError(null);
+        }
+
+         if (TextUtils.isEmpty(detailsmatab.getText().toString()) || detailsmatab.length()<30  ) {
+
+             detailsmatab.setError("Minimum of characters is 30");
+            valid = false;
+
+        } else {
+             detailsmatab.setError(null);
+        }
+
+
+
+
+        return valid;
+    }
+
+
+    private String eventid(){
+
+
+        Random r = new Random();
+        int randomNo = r.nextInt(1000+1);
+
+        Calendar c = Calendar.getInstance();
+        int day = c.get(Calendar.DAY_OF_MONTH)+1;
+        int mon = c.get(Calendar.MONTH)+1;
+        int year = c.get(Calendar.YEAR);
+        int hour= c.get(Calendar.HOUR_OF_DAY);
+        int Min= c.get(Calendar.MINUTE);
+        int sec= c.get(Calendar.SECOND);
+
+
+        String evid = "ev" + randomNo+day+mon+year+hour+Min+sec;
+
+        return evid;
+    }
+
+
 }

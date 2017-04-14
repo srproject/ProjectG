@@ -273,4 +273,15 @@ public class FireACCOUNT {
       /*Blank default constructor essential for Firebase*/
     }
 
+
+    public String getAccount_photo() {
+        return account_photo;
+    }
+
+    public void setAccount_photo(String account_photo) {
+        this.account_photo = account_photo;
+    }
+
+    private String  account_photo ;
+
 }

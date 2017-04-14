@@ -39,8 +39,7 @@ public class EditprofileActivity extends Activity {
     FloatingActionButton fabeditimageadd;
     ImageView imageVieweditpro;
     int CAMERA_PIC_REQUEST = 2;
-    int  TAKE_PICTURE=0;
-    Camera camera;
+     Camera camera;
     Bitmap bitmap;
     Button editpro_save_button;
     private static int RESULT_LOAD_IMAGE = 1;

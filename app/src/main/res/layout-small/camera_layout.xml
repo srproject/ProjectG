@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+
+    <SurfaceView
+        android:id="@+id/camerapreview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+<!--
+        <Button
+            android:id="@+id/camerabu"
+            android:layout_gravity="bottom|center"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="70dp"
+            android:background="@drawable/camera"
+            />
+
+
+        <Button
+            android:id="@+id/cameraflashonbu"
+            android:layout_gravity="bottom|left"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginLeft="110dp"
+            android:layout_marginBottom="70dp"
+            android:background="@drawable/flashon"
+            />
+
+        <Button
+            android:id="@+id/vediocambu"
+            android:layout_gravity="bottom|right"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginRight="90dp"
+            android:layout_marginBottom="70dp"
+            android:background="@drawable/videocam"
+            />
+
+
+        <Button
+            android:id="@+id/camcswbu"
+            android:layout_gravity="bottom|right"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginRight="90dp"
+            android:layout_marginBottom="70dp"
+            android:visibility="gone"
+            android:background="@drawable/cameralogo"
+            />
+-->
+
+
+
+        <View
+            android:id="@+id/shadowView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#72000000"
+            android:visibility="gone" />
+
+
+</FrameLayout>

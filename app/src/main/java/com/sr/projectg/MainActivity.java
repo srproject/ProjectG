@@ -47,6 +47,7 @@ import com.sr.projectg.Fragment.NewProFragment;
 import com.sr.projectg.Fragment.NotiFragment;
 import com.sr.projectg.activity.AddEventActivity;
 import com.sr.projectg.activity.LoginActivity;
+import com.sr.projectg.Firebase.FireLogin.*;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -336,6 +337,11 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
         else if (id == R.id.nav_item_signin) {
             Intent intent = new Intent(MainActivity.this, FireLogin.class);
             startActivity(intent);
+        }
+
+        else if (id == R.id.nav_item_signout) {
+           // FireLogin fireLogin=new FireLogin();
+            //fireLogin.signOut();
         }
 
 

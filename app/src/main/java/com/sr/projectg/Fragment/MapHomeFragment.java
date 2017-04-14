@@ -235,15 +235,15 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
 
 
-                        LatLng sydney = new LatLng(lat, lng);
+                       // LatLng sydney = new LatLng(lat, lng);
 
 
 
 
                         // addClusterMarkers(mClusterManager);
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
-                        googleMap.animateCamera(zoom);
+                        //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+                        //CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
+                        //googleMap.animateCamera(zoom);
 
 
 
@@ -272,7 +272,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
 
 
-                getlatlong();
+       //         getlatlong();
 
 //                addClusterMarkers(mClusterManager);
 

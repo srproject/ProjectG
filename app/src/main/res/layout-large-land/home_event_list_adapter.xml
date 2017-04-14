@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+     android:weightSum="1">
+
+
+
+
+
+
+
+
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+
+
+
+    <ListView
+        android:id="@+id/listev"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="0dp"
+        android:layout_marginBottom="40dp"
+        >
+
+
+
+
+
+    </ListView>
+
+        <ProgressBar
+            android:id="@+id/loadingev"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:visibility="gone"
+            />
+
+
+
+
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabtcam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginTop="350dp"
+            android:layout_marginLeft="10dp"
+            app:elevation="6dp"
+            android:visibility="invisible"
+              app:srcCompat="@mipmap/traficcamera"
+            app:layout_behavior="com.codepath.floatingactionbuttontest.ScrollAwareFABBehavior"
+            />
+
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabbump"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginTop="420dp"
+            android:layout_marginLeft="10dp"
+            app:elevation="6dp"
+            android:visibility="invisible"
+            app:pressedTranslationZ="12dp"
+            app:srcCompat="@mipmap/bump"
+            app:layout_behavior="com.codepath.floatingactionbuttontest.ScrollAwareFABBehavior"
+            />
+
+
+
+
+
+<!--
+        <Button
+            android:id="@+id/homeaddbu"
+            android:layout_gravity="center|left"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="12dp"
+            android:layout_marginTop="180dp"
+            android:background="@drawable/add"
+            />
+-->
+
+
+
+
+        <View
+            android:id="@+id/shadowViewh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#72000000"
+            android:visibility="gone" />
+
+</FrameLayout>
+
+
+
+</LinearLayout>

@@ -111,6 +111,33 @@
 
             </android.support.design.widget.TextInputLayout>
 
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="55dp"
+                >
+
+                <EditText
+                    android:id="@+id/userpassword"
+                    android:gravity="left"
+                    android:layout_marginLeft="40dp"
+                    android:layout_marginRight="40dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/prompt_password"
+                    android:imeActionId="@+id/login"
+                    android:imeActionLabel="@string/action_sign_in_short"
+                    android:imeOptions="actionUnspecified"
+                    android:inputType="textPassword"
+                    android:maxLines="1"
+                    />
+
+
+
+            </android.support.design.widget.TextInputLayout>
+
+
+
         </android.support.v7.widget.CardView>
 
 
@@ -148,72 +175,6 @@
                     />
 
             </android.support.design.widget.TextInputLayout>
-
-        </android.support.v7.widget.CardView>
-
-
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="10dp"
-            app:cardElevation="3dp"
-            app:cardUseCompatPadding="false"
-            app:cardPreventCornerOverlap="true"
-            app:cardCornerRadius="20dp"
-
-            >
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="5dp"
-                >
-
-                <EditText
-                    android:id="@+id/userpassword"
-                    android:gravity="left"
-                    android:layout_marginLeft="40dp"
-                    android:layout_marginRight="40dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/prompt_password"
-                    android:imeActionId="@+id/login"
-                    android:imeActionLabel="@string/action_sign_in_short"
-                    android:imeOptions="actionUnspecified"
-                    android:inputType="textPassword"
-                    android:maxLines="1"
-                    />
-
-
-
-            </android.support.design.widget.TextInputLayout>
-
-
-            <android.support.design.widget.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="50dp"
-                android:paddingTop="10dp"
-
-                >
-
-                <EditText
-                    android:id="@+id/reuserpassword"
-                    android:gravity="left"
-                    android:layout_marginLeft="40dp"
-                    android:layout_marginRight="40dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/Confirm_password"
-                    android:imeActionId="@+id/login"
-                    android:imeActionLabel="@string/action_sign_in_short"
-                    android:imeOptions="actionUnspecified"
-                    android:inputType="textPassword"
-                    android:maxLines="1"                />
-
-            </android.support.design.widget.TextInputLayout>
-
 
         </android.support.v7.widget.CardView>
 
