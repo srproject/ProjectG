@@ -99,25 +99,43 @@
                     android:textColor="@color/white"
 
                     />
+
             </LinearLayout>
 
+            <Button
+                android:id="@+id/ship_button"
+                android:layout_width="354dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/email_login_form"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="10dp"
+                android:layout_toRightOf="@id/email_sign_up_button"
+                android:background="@color/colorAccent"
+                android:text="@string/action_Skip"
+                android:textColor="@color/white"
+
+                />
 
 
 
             <com.google.android.gms.common.SignInButton
                 android:id="@+id/g_sign_in_button"
-                android:layout_width="187dp"
-                android:layout_height="33dp"
+                android:layout_width="362dp"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="5dp"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:clickable="true"
+
+                />
+
 
 
             <TextView
                 android:id="@+id/forget_pass_tv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="30dp"
                 android:gravity="center|bottom"
                 android:text="@string/forget"
 

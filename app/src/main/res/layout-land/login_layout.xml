@@ -124,8 +124,10 @@
                 android:layout_height="33dp"
                 android:layout_gravity="center"
                 android:layout_marginTop="5dp"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:clickable="true"
 
+                />
 
 
             <TextView

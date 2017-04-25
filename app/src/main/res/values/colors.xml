@@ -28,6 +28,17 @@
     <color name="colorAccentLight">#FF0000</color>
     <color name="FacebookColor">#3B5998</color>
     <color name="cache_color">#00000000</color>
+
+
+    <color name="rp1">#fdd700</color>
+    <color name="rp2">#08f73c</color>
+    <color name="rp3">#FF0000</color>
+    <color name="rp4">#E040FB</color>
+    <color name="rp5">#2196F3</color>
+
+
+
+
 </resources>
 
 

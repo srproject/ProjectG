@@ -1,5 +1,7 @@
 package com.sr.projectg.Firebase;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,6 +22,7 @@ import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.LoggingBehavior;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.firebase.client.Firebase;
@@ -32,6 +35,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.plus.model.people.Person;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -56,6 +61,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.sr.projectg.BuildConfig;
 import com.sr.projectg.MainActivity;
 import com.sr.projectg.R;
+import com.sr.projectg.activity.AddEventActivity;
 
 import java.util.Calendar;
 import java.util.Random;
@@ -65,12 +71,14 @@ import java.util.Random;
  */
 
 public class FireLogin  extends AppCompatActivity implements
-        GoogleApiClient.OnConnectionFailedListener, View.OnClickListener  {
+        GoogleApiClient.OnConnectionFailedListener   {
 
     private static final String TAG = "EmailPassword";
+    private static GoogleApiClient mGoogleApiClient;
+    public static  int sign=0;
 
-    private EditText emailetlog;
-    private EditText passwordetlog;
+    private static EditText emailetlog;
+    private static EditText passwordetlog;
     TextView forget_pass_tv;
 
     // [START declare_auth]
@@ -96,26 +104,29 @@ public class FireLogin  extends AppCompatActivity implements
 
     private static final String TAG2 = "GoogleActivity";
     private static final int RC_SIGN_IN = 9001;
-    private GoogleApiClient mGoogleApiClient;
-    String id,name,email;
+     String id,name,email;
     Object idobj;
-    Button email_sign_in_button,email_sign_up_button;
-    SignInButton g_sign_in_button;
+    static Button email_sign_in_button;
+    static Button email_sign_up_button,ship_button;
+    static SignInButton g_sign_in_button;
     // [END Google]
 
     //{Start Facebook}
 
     CallbackManager mCallbackManager;
-    LoginButton loginButton;
+    static LoginButton loginButton;
 
     //{END Facebook}
 
 
+ProgressDialog progressDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
+
+        progressDialog =new ProgressDialog(this);
 
         // Views
         emailetlog = (EditText) findViewById(R.id.emailetlog);
@@ -123,19 +134,46 @@ public class FireLogin  extends AppCompatActivity implements
 
         // Buttons
         email_sign_in_button=(Button)findViewById(R.id.email_sign_in_button) ;
+        email_sign_in_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signIn(emailetlog.getText().toString(), passwordetlog.getText().toString());
+
+            }
+        });
         g_sign_in_button=(SignInButton) findViewById(R.id.g_sign_in_button) ;
+        g_sign_in_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signInG();
+
+            }
+        });
         email_sign_up_button =(Button) findViewById(R.id.email_sign_up_button) ;
+        ship_button =(Button) findViewById(R.id.ship_button) ;
+        ship_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                Intent intent = new Intent(FireLogin.this,MainActivity.class);
+                startActivity(intent);
+
+            }
+        });
+
+        email_sign_up_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(FireLogin.this,FireRegistration.class);
+                startActivity(intent);
+            }
+        });
         forget_pass_tv= (TextView) findViewById(R.id.forget_pass_tv);
         loginButton = (LoginButton) findViewById(R.id.fb_login_button);
 
-        // Buttons liss
-        email_sign_in_button.setOnClickListener(this);
-        g_sign_in_button.setOnClickListener(this);
-        email_sign_up_button.setOnClickListener(this);
-        forget_pass_tv.setOnClickListener(this);
-        loginButton.setOnClickListener(this);
 
 
+        loginButton.setVisibility(View.GONE);
 
 
         // [START initialize_auth]
@@ -162,7 +200,7 @@ public class FireLogin  extends AppCompatActivity implements
                 .build();
         // [END config_signin]
         fuser = FirebaseAuth.getInstance().getCurrentUser();
-
+/*
         //{Start Facebook_setup}
         FacebookSdk.sdkInitialize(this);
         if (BuildConfig.DEBUG) {
@@ -200,7 +238,7 @@ public class FireLogin  extends AppCompatActivity implements
 
 
         //{END Facebook_setup}
-
+*/
 
 
         // [START auth_state_listener]
@@ -251,8 +289,8 @@ public class FireLogin  extends AppCompatActivity implements
         if (!validateForm()) {
             return;
         }
+         showProgress();
 
-      //  showProgressDialog();
 
         // [START sign_in_with_email]
         mAuth.signInWithEmailAndPassword(email, password)
@@ -272,11 +310,19 @@ public class FireLogin  extends AppCompatActivity implements
 
                         // [START_EXCLUDE]
                         if (task.isSuccessful()) {
+                            sign=1;
                             Toast.makeText(FireLogin.this, "Welcome",
                                     Toast.LENGTH_SHORT).show();
                             finish();
+                            Intent intent = new Intent(FireLogin.this, MainActivity.class);
+                            intent.putExtra("SRlogin", "1");
+                            startActivity(intent);
+
+
                          }
+                        updateUIS();
                         hideProgress();
+
                         // [END_EXCLUDE]
                     }
                 });
@@ -284,9 +330,22 @@ public class FireLogin  extends AppCompatActivity implements
     }
 
     public static void signOut() {
-        mAuth.signOut();
 
-     }
+
+                    mAuth.getInstance().signOut();
+                   FirebaseAuth.getInstance().signOut();
+                   LoginManager.getInstance().logOut();
+        sign=0;
+                   // Toast.makeText(context,"",Toast.LENGTH_SHORT).show();
+                    // Google sign out
+
+
+    }
+
+
+
+
+
 
     private void sendEmailVerification() {
         // Disable button
@@ -341,43 +400,18 @@ public class FireLogin  extends AppCompatActivity implements
         return valid;
     }
 
-    @Override
-    public void onClick(View v) {
-        int i = v.getId();
-        if (i == R.id.email_sign_up_button) {
-            //createAccount(emailetlog.getText().toString(), passwordetlog.getText().toString());
-            Intent intent = new Intent(FireLogin.this,FireRegistration.class);
-            startActivity(intent);
-        } else if (i == R.id.email_sign_in_button) {
-            signIn(emailetlog.getText().toString(), passwordetlog.getText().toString());
-        }
-        else if (i == R.id.g_sign_in_button) {
 
-            signInG();
-
-        }else if (i == R.id.fb_login_button) {
-
-            if(loginButton.isActivated()){
-
-            }
-        }
-
-
-       //else if (i == R.id.verify_email_button) {
-            //sendEmailVerification();
-        //}
-    }
 
     public void hideProgress(){
 
-
-
+        progressDialog.dismiss();
 
     }
     public void showProgress(){
 
 
-
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
 
     }
 
@@ -396,7 +430,7 @@ public class FireLogin  extends AppCompatActivity implements
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
 
             id = acid();
-            name = fuser.getDisplayName().toString();
+            name = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
             email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
             idobj = id;
         }
@@ -415,8 +449,15 @@ public class FireLogin  extends AppCompatActivity implements
                 email=account.getEmail().toString();
                 idobj= id;
 
-                Toast.makeText(FireLogin.this,account.getId().toString()+"-"+account.getDisplayName().toString(),
-                        Toast.LENGTH_LONG).show();
+
+                sign=1;
+                Toast.makeText(FireLogin.this, "Welcome",
+                        Toast.LENGTH_SHORT).show();
+                finish();
+                Intent intent = new Intent(FireLogin.this, MainActivity.class);
+                intent.putExtra("SRlogin", "1");
+                startActivity(intent);
+
 
 
             } else {
@@ -424,6 +465,7 @@ public class FireLogin  extends AppCompatActivity implements
                 // [START_EXCLUDE]
               //  updateUI(null);
                 // [END_EXCLUDE]
+                sign=0;
             }
         }
     }
@@ -433,7 +475,8 @@ public class FireLogin  extends AppCompatActivity implements
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG2, "firebaseAuthWithGoogle:" + acct.getId());
         // [START_EXCLUDE silent]
-       // showProgressDialog();
+
+
         // [END_EXCLUDE]
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
@@ -553,7 +596,8 @@ public class FireLogin  extends AppCompatActivity implements
 
 
                         // [START_EXCLUDE]
-                       // hideProgressDialog();
+                        updateUIS();
+                        hideProgress();
                         // [END_EXCLUDE]
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -571,6 +615,8 @@ public class FireLogin  extends AppCompatActivity implements
 
     // [START signin]
     private void signInG() {
+         showProgress();
+
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -677,7 +723,7 @@ public class FireLogin  extends AppCompatActivity implements
         g_sign_in_button.setEnabled(false);
 
     }
-    public void updateUIS(){
+    public static void updateUIS(){
 
         emailetlog.setEnabled(true);
         passwordetlog.setEnabled(true);
@@ -707,6 +753,8 @@ public class FireLogin  extends AppCompatActivity implements
 
         return evid;
     }
+
+
 
 
 }

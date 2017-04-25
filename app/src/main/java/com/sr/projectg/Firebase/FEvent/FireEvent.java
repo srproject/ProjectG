@@ -1,4 +1,4 @@
-package com.sr.projectg.Firebase;
+package com.sr.projectg.Firebase.FEvent;
 
 /**
  * Created by sr on 4/6/17.
@@ -46,15 +46,25 @@ public class FireEvent {
 
     private String event_type_code;
 
-    public String getEvent_date_time() {
-        return event_date_time;
+    public String getEvent_date() {
+        return event_date;
     }
 
-    public void setEvent_date_time(String event_date_time) {
-        this.event_date_time = event_date_time;
+    public void setEvent_date(String event_date) {
+        this.event_date = event_date;
     }
 
-    private String event_date_time;
+    private String event_date;
+
+    public String getEvent_time() {
+        return event_time;
+    }
+
+    public void setEvent_time(String event_time) {
+        this.event_time = event_time;
+    }
+
+    private String event_time;
     private String event_latitude;
 
     public String getEvent_latitude() {

@@ -1,14 +1,20 @@
 package com.sr.projectg.Fragment;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.method.KeyListener;
 import android.util.Log;
@@ -24,7 +30,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.sr.projectg.Database.SQLiteDatabaseHelper;
+import com.sr.projectg.Firebase.FEvent.FEventAdapter;
+import com.sr.projectg.Firebase.FEvent.FEventHolder;
 import com.sr.projectg.R;
 import com.sr.projectg.adapter.event.HomeEventSQLiteListAdapter;
 
@@ -41,7 +55,7 @@ import java.util.ArrayList;
 public class HomeFragment extends Fragment implements KeyListener,View.OnClickListener {
 
     ImageView hprofile, imageView1;
-
+/*
     SQLiteDatabaseHelper SQLITEHELPER;
     SQLiteDatabase SQLITEDATABASE;
     Cursor cursor;
@@ -54,7 +68,7 @@ public class HomeFragment extends Fragment implements KeyListener,View.OnClickLi
 
 
     ListView LISTVIEW;
-
+*/
     //for fab
 
     private Boolean isFabOpen = false;
@@ -65,12 +79,80 @@ public class HomeFragment extends Fragment implements KeyListener,View.OnClickLi
 
 
 
+    ////firebase
+
+
+    DatabaseReference db;
+    FEventHolder helper;
+    FEventAdapter adapter;
+    ListView lv;
+
+    //swip
+
+    SwipeRefreshLayout mySwipeRefreshLayout;
+    int data=0;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
 
         View rootView = inflater.inflate(R.layout.home_event_list_adapter, container, false);
+
+        mySwipeRefreshLayout = (SwipeRefreshLayout)rootView.findViewById(R.id.swipehome);
+        mySwipeRefreshLayout.setColorSchemeResources(
+                R.color.rp1,
+                R.color.rp2,
+                R.color.rp3,
+                R.color.rp4,
+                R.color.rp5);
+
+        db = FirebaseDatabase.getInstance().getReference();
+        helper = new FEventHolder(db);
+       // mySwipeRefreshLayout.setRefreshing(true);
+
+        lv = (ListView) rootView.findViewById(R.id.listev);
+        adapter = new FEventAdapter(getContext(), helper.retrieve());
+        lv.setAdapter(adapter);
+
+            String fff=String.valueOf(lv.getCount());
+            Log.i("SRFire0","fff"+fff);
+            if(lv.getCount()>0){
+                mySwipeRefreshLayout.setRefreshing(false);
+
+
+
+            }
+
+
+
+
+        mySwipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+
+
+                        lv.setAdapter(adapter);
+
+                        String fff=String.valueOf(lv.getCount());
+                        Log.i("SRFire0","fff"+fff);
+                        if (lv.getCount()>0){
+
+                            mySwipeRefreshLayout.setRefreshing(false);
+
+
+                        }
+
+
+
+
+
+                    }
+                }
+        );
+
+
 
         //((MainActivity) getActivity()).hideFloatingActionButton();
 
@@ -90,13 +172,14 @@ public class HomeFragment extends Fragment implements KeyListener,View.OnClickLi
         fab2.setOnClickListener(this);
         // homeaddbu.setAnimation(fab_open);
 
+        /*
 
-        LISTVIEW = (ListView) rootView.findViewById(R.id.listev);
+      //  LISTVIEW = (ListView) rootView.findViewById(R.id.listev);
 
         SQLITEHELPER = new SQLiteDatabaseHelper(getContext());
+*/
 
-
-        ShowSQLiteDBdata() ;
+       // ShowSQLiteDBdata() ;
 
 
 
@@ -180,7 +263,10 @@ public class HomeFragment extends Fragment implements KeyListener,View.OnClickLi
     @Override
     public void onResume() {
         super.onResume();
-        ShowSQLiteDBdata();
+       // lv.setAdapter(adapter);
+
+
+        // ShowSQLiteDBdata();
 //        loadImageFromStorage();
 
 
@@ -260,7 +346,7 @@ public class HomeFragment extends Fragment implements KeyListener,View.OnClickLi
     public void clearMetaKeyState(View view, Editable content, int states) {
 
     }
-
+/*
     private void ShowSQLiteDBdata() {
 
         new CountDownTimer(1000, 800) {
@@ -311,6 +397,8 @@ public class HomeFragment extends Fragment implements KeyListener,View.OnClickLi
 
 
     }
+
+*/
 
     //setup fab animation
 
@@ -377,6 +465,18 @@ public class HomeFragment extends Fragment implements KeyListener,View.OnClickLi
 
     public void hideFloatingActionButton() {
      //   homeaddbu.setAnimation(fab_close);
+    }
+
+    public static boolean isNetworkStatusAvialablesr (Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivityManager != null)
+        {
+            NetworkInfo netInfos = connectivityManager.getActiveNetworkInfo();
+            if(netInfos != null)
+                if(netInfos.isConnected())
+                    return true;
+        }
+        return false;
     }
 
 

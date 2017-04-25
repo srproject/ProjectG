@@ -172,7 +172,7 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
 
-
+/*
                 mClusterManager = new ClusterManager<MyItem>(getActivity(), googleMap);
                 mClusterManager.setRenderer(new OwnRendring(getContext(),googleMap,mClusterManager));
                 mClusterManager.clearItems();
@@ -203,6 +203,8 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
 
                 }
+
+                */
                 if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions

@@ -38,6 +38,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.sr.projectg.Firebase.FireLogin;
 import com.sr.projectg.Firebase.FireRegistration;
 import com.sr.projectg.Fragment.CameraFragment;
@@ -48,6 +53,7 @@ import com.sr.projectg.Fragment.NotiFragment;
 import com.sr.projectg.activity.AddEventActivity;
 import com.sr.projectg.activity.LoginActivity;
 import com.sr.projectg.Firebase.FireLogin.*;
+import com.sr.projectg.activity.web;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -70,6 +76,9 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
     private ViewPager mViewPager;
     public static final int PERMISSIONS_MULTIPLE_REQUEST = 11;
     MapHomeFragment map;
+    int signm = 0;
+    Bundle bundle;
+    NavigationView navigationView;
 
 
 
@@ -109,6 +118,35 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
             permi2();
         }
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+
+
+
+            FireLogin fireLogin=new FireLogin();
+
+
+
+            signm= fireLogin.sign;
+
+            Log.i("SRFire0",String.valueOf(signm));
+
+            if (signm == 1) {
+                signm = fireLogin.sign;
+
+                //findViewById(R.id.nav_item_signin).setVisibility(View.GONE);
+
+                Menu nav_Menu = navigationView.getMenu();
+                nav_Menu.findItem(R.id.nav_item_signin).setVisible(false);
+                nav_Menu.findItem(R.id.nav_item_signout).setVisible(true);
+                //findViewById(R.id.nav_item_signout).setVisibility(View.VISIBLE);
+
+            } else {
+                Menu nav_Menu = navigationView.getMenu();
+                nav_Menu.findItem(R.id.nav_item_signin).setVisible(true);
+                nav_Menu.findItem(R.id.nav_item_signout).setVisible(false);
+            }
+
+
 
 
 
@@ -240,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
         final DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         View headerview = navigationView.getHeaderView(0);
         LinearLayout header = (LinearLayout) headerview.findViewById(R.id.nav_view_header);
         navigationView.setNavigationItemSelectedListener(this);
@@ -278,8 +315,10 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_web) {
+
+            Intent intent = new Intent(MainActivity.this, web.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -307,15 +346,29 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
 
         } else if (id == R.id.nav_item_abu_event) {
-            Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
-            intent.putExtra("SRtitle", "Bump");
-            intent.putExtra("SRCode", "1");
-            map.zoom();
+            FireLogin fireLogin=new FireLogin();
+            int signm=fireLogin.sign;
+            if (signm==1) {
+                Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
+                intent.putExtra("SRtitle", "Bump");
+                intent.putExtra("SRCode", "1");
+                // map.zoom();
 
-            startActivity(intent);
+                startActivity(intent);
+            } else {
+                Toast.makeText(getApplicationContext(), "Login First", Toast.LENGTH_SHORT).show();
+
+            }
+
+
         }
 
+
+
         else if (id == R.id.nav_item_atc_event) {
+            FireLogin fireLogin=new FireLogin();
+            int signm=fireLogin.sign;
+            if (signm==1) {
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
             intent.putExtra("SRtitle", "Trafic Camera");
             intent.putExtra("SRCode", "2");
@@ -323,9 +376,16 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
 
             startActivity(intent);
+            } else {
+                Toast.makeText(getApplicationContext(), "Login First", Toast.LENGTH_SHORT).show();
+
+            }
         }
 
         else if (id == R.id.nav_item_aoth_event) {
+            FireLogin fireLogin=new FireLogin();
+            int signm=fireLogin.sign;
+                if (signm==1) {
             Intent intent = new Intent(MainActivity.this, AddEventActivity.class);
             intent.putExtra("SRtitle", "Other");
             intent.putExtra("SRCode", "3");
@@ -333,16 +393,42 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
 
 
             startActivity(intent);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Login First", Toast.LENGTH_SHORT).show();
+
+                }
         }
         else if (id == R.id.nav_item_signin) {
+
             Intent intent = new Intent(MainActivity.this, FireLogin.class);
             startActivity(intent);
+
         }
 
         else if (id == R.id.nav_item_signout) {
-           // FireLogin fireLogin=new FireLogin();
-            //fireLogin.signOut();
+            FireLogin fireLogin = new FireLogin();
+            int signm = fireLogin.sign;
+            if (signm == 1) {
+
+                fireLogin.signOut();
+                Menu nav_Menu = navigationView.getMenu();
+                nav_Menu.findItem(R.id.nav_item_signin).setVisible(true);
+                nav_Menu.findItem(R.id.nav_item_signout).setVisible(false);
+                Toast.makeText(getApplicationContext(), "Signed out", Toast.LENGTH_SHORT).show();
+                signm = 0;
+
+
+            } else {
+                Menu nav_Menu = navigationView.getMenu();
+                nav_Menu.findItem(R.id.nav_item_signin).setVisible(true);
+                nav_Menu.findItem(R.id.nav_item_signout).setVisible(false);
+                Toast.makeText(getApplicationContext(), "Login First", Toast.LENGTH_SHORT).show();
+
+
+            }
         }
+
+
 
 
 

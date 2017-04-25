@@ -36,6 +36,7 @@
     <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
+    <string name="action_Skip">Skip Login</string>
     <string name="Confirm_password">Confirm Password</string>
     <string name="title_birth">Birthday</string>
     <string name="action_regi">Register With ProjectX </string>
@@ -74,6 +75,12 @@
     <string name="navigation_drawer_open">open</string>
     <string name="navigation_drawer_close">close</string>
     <string name="title_activity_hjhjhjj">Map</string>
+
+
+    <!-- strings for web -->
+
+
+    <string name="web_refesh_error">Could not refresh feed</string>
 
 
 </resources>

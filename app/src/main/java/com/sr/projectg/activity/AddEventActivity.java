@@ -9,9 +9,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.ImageFormat;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -73,7 +70,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.sr.projectg.Database.SQLiteDatabaseHelper;
-import com.sr.projectg.Firebase.FireEvent;
+import com.sr.projectg.Firebase.FEvent.FireEvent;
 import com.sr.projectg.Fragment.MapHomeFragment;
 import com.sr.projectg.R;
 
@@ -87,7 +84,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -150,6 +147,8 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
     DatabaseReference db;
     private static final String TAG = "SRFire0";
 
+    Uri buri;
+
 
 
     @Override
@@ -168,11 +167,46 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
         storage=FirebaseStorage.getInstance();
         // [END initialize_auth]
 
-        // Create a storage reference from our app
 
-            evid = eventid();
+                    evid = eventid();
+        if(mAuth.getCurrentUser().getDisplayName()!=null) {
             name = mAuth.getCurrentUser().getDisplayName().toString();
-            email = mAuth.getCurrentUser().getEmail().toString();
+        }
+                    email = mAuth.getCurrentUser().getEmail().toString();
+
+                    // Create a storage reference from our app
+
+                    Firebase.setAndroidContext(AddEventActivity.this);
+                    final Firebase ref = new Firebase("https://projectg-70ce9.firebaseio.com/");
+                    Query query = ref.child("ACCOUNT").orderByChild("account_email").equalTo(email);
+                    query.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
+
+
+                            for (com.firebase.client.DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                                id=postSnapshot.child("account_id").getValue().toString();
+                                Log.i("SRFire0",id);
+                            }
+
+
+
+
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+
+                        }
+                    });
+
+
+
+
+
+
+             //   Log.i(TAG,   FirebaseAuth.getInstance().getCurrentUser().getProviderId().toString());
+
 
             storageRef = storage.getReference();
             storageRef2 = storage.getReference();
@@ -355,7 +389,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
 
 
-                if(Pbitmap!=null){
+                if(Pbitmap!=null ){
 
                         if(bitmap!=null) {
 
@@ -404,29 +438,6 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task2) {
                                             mapurl = task2.getResult().getDownloadUrl().toString();
 
-                                            Firebase.setAndroidContext(AddEventActivity.this);
-                                            final Firebase ref = new Firebase("https://projectg-70ce9.firebaseio.com/ACCOUNT");
-                                            Query query = ref.orderByChild("account_email").equalTo(email);
-                                            query.addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
-
-
-                                                    for (com.firebase.client.DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                                                        id=postSnapshot.child("account_id").getValue().toString();
-                                                    }
-
-
-
-
-                                                }
-
-                                                @Override
-                                                public void onCancelled(FirebaseError firebaseError) {
-
-                                                }
-                                            });
-
 
 
                                             fireEvent.setEvent_account_id(id);
@@ -439,8 +450,8 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                                             fireEvent.setEvent_longitude(text2.toString());
                                             fireEvent.setEvent_latitude(text1.toString());
                                             fireEvent.setEvent_locnam(text3.toString());
-                                            fireEvent.setEvent_date_time(datematab.getText().toString()
-                                                    + "-" + timematab.getText().toString());
+                                            fireEvent.setEvent_date(datematab.getText().toString());
+                                            fireEvent.setEvent_time(timematab.getText().toString());
 
 
                                             db.child("EVENT").push().setValue(fireEvent);
@@ -449,7 +460,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                                                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                                                     Toast.makeText(getApplicationContext(),"حبيبي تسلم",Toast.LENGTH_SHORT).show();
-                                                    finish();
+                                                 //   finish();
 
 
                                                 }
@@ -573,7 +584,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
 
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, buri);
                 setResult(RESULT_OK, cameraIntent);
 
                 startActivityForResult(cameraIntent, CAMERA_PIC_REQUEST);
@@ -687,8 +698,11 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
         if( requestCode == CAMERA_PIC_REQUEST && resultCode == RESULT_OK && data != null)
         {
-            Pbitmap = (Bitmap) data.getExtras().get("data");
-            imageaddmatab.setImageBitmap(Pbitmap);
+
+                Pbitmap = (Bitmap) data.getExtras().get("data");
+                imageaddmatab.setImageBitmap(Pbitmap);
+
+
 
         }
         else
@@ -1217,6 +1231,8 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
 
 
 
+
+
         return valid;
     }
 
@@ -1239,6 +1255,56 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
         String evid = "ev" + randomNo+day+mon+year+hour+Min+sec;
 
         return evid;
+    }
+
+
+    public Bitmap getThumbnail(Uri uri) throws FileNotFoundException, IOException{
+        InputStream input = this.getContentResolver().openInputStream(uri);
+
+
+        BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
+        onlyBoundsOptions.inJustDecodeBounds = true;
+        onlyBoundsOptions.inDither=true;//optional
+        onlyBoundsOptions.inPreferredConfig=Bitmap.Config.ARGB_8888;//optional
+        BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
+        input.close();
+
+        if ((onlyBoundsOptions.outWidth == -1) || (onlyBoundsOptions.outHeight == -1)) {
+            return null;
+        }
+
+        int originalSize = (onlyBoundsOptions.outHeight > onlyBoundsOptions.outWidth) ? onlyBoundsOptions.outHeight : onlyBoundsOptions.outWidth;
+
+        double ratio = (originalSize > 500) ? (originalSize / 750) : 1.0;
+
+        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+        bitmapOptions.inSampleSize = getPowerOfTwoForSampleRatio(ratio);
+        bitmapOptions.inDither = true; //optional
+        bitmapOptions.inPreferredConfig=Bitmap.Config.ARGB_8888;//
+        input = this.getContentResolver().openInputStream(uri);
+        Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
+        input.close();
+        return bitmap;
+    }
+
+    private static int getPowerOfTwoForSampleRatio(double ratio){
+        int k = Integer.highestOneBit((int)Math.floor(ratio));
+        if(k==0) return 1;
+        else return k;
+    }
+
+    private void uriToBitmap(Uri selectedFileUri) {
+        try {
+            ParcelFileDescriptor parcelFileDescriptor =
+                    getContentResolver().openFileDescriptor(selectedFileUri, "r");
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+              Pbitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+
+
+            parcelFileDescriptor.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

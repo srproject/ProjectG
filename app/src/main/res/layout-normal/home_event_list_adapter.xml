@@ -22,9 +22,18 @@
 
 
 
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipehome"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 
-    <ListView
+
+
+
+
+        <ListView
         android:id="@+id/listev"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -38,6 +47,9 @@
 
 
     </ListView>
+
+        </android.support.v4.widget.SwipeRefreshLayout>
+
 
         <ProgressBar
             android:id="@+id/loadingev"
@@ -107,7 +119,6 @@
             android:visibility="gone" />
 
 </FrameLayout>
-
 
 
 </LinearLayout>
