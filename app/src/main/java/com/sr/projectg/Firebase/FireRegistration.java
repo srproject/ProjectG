@@ -70,6 +70,12 @@ public class FireRegistration extends AppCompatActivity {
 
     EditText username,userpassword,useremail;
     String name,pass,email,radios,birthdays,getDownloadUrls;
+
+    String permission_inter,permission_event,permission_comm,permission_share,
+            permission_like,permission_camera,permission_profile,permission_editprofile,
+            permission_map,permission_noti,permission_showevent,permission_make_event_solve
+    ,permission_block,permission_report,permission_blocku_admin,permission_deleteu_admin
+    ,permission_photo_hide,permission_photo_hide_admin,permission_photo_delete;
     RadioButton userradio,goverradio;
     DatePicker birthday;
 
@@ -269,11 +275,49 @@ public class FireRegistration extends AppCompatActivity {
                             if(userradio.isChecked()){
 
                                 radios="user";
+                                         permission_inter="1";
+                                         permission_event="1";
+                                         permission_comm="1";
+                                         permission_share="1";
+                                         permission_like="1";
+                                         permission_camera="1";
+                                         permission_profile="1";
+                                         permission_editprofile="1";
+                                         permission_map="1";
+                                         permission_noti ="1";
+                                         permission_showevent ="1";
+                                         permission_make_event_solve="0";
+                                         permission_block="1";
+                                         permission_report ="0";
+                                         permission_blocku_admin="0";
+                                         permission_deleteu_admin="0";
+                                         permission_photo_hide ="1";
+                                         permission_photo_hide_admin ="0";
+                                         permission_photo_delete="0";
 
                             }
                             if(goverradio.isChecked()){
 
                                 radios="government";
+                                permission_inter="0";
+                                permission_event="0";
+                                permission_comm="1";
+                                permission_share="0";
+                                permission_like="0";
+                                permission_camera="0";
+                                permission_profile="1";
+                                permission_editprofile="1";
+                                permission_map="1";
+                                permission_noti ="1";
+                                permission_showevent ="1";
+                                permission_make_event_solve="1";
+                                permission_block="0";
+                                permission_report ="1";
+                                permission_blocku_admin="0";
+                                permission_deleteu_admin="0";
+                                permission_photo_hide ="0";
+                                permission_photo_hide_admin ="0";
+                                permission_photo_delete="0";
 
 
                             }
@@ -319,12 +363,32 @@ public class FireRegistration extends AppCompatActivity {
 
                                     //Adding values
 
-                                    fireACCOUNT.setAccount_id(mAuth.getCurrentUser().getUid().toString());
+                                    fireACCOUNT.setAccount_id(acid());
                                     fireACCOUNT.setAccount_name(name);
                                     fireACCOUNT.setAccount_pass(pass);
                                     fireACCOUNT.setAccount_email(email);
                                     fireACCOUNT.setAccount_type(radios);
                                     fireACCOUNT.setAccount_birthday(birthdays);
+
+                                    fireACCOUNT.setPermission_inter(permission_inter);
+                                    fireACCOUNT.setPermission_event(permission_event);
+                                    fireACCOUNT.setPermission_comm(permission_comm);
+                                    fireACCOUNT.setPermission_share(permission_share);
+                                    fireACCOUNT.setPermission_like(permission_like);
+                                    fireACCOUNT.setPermission_profile(permission_profile);
+                                    fireACCOUNT.setPermission_editprofile(permission_editprofile);
+                                    fireACCOUNT.setPermission_map(permission_map);
+                                    fireACCOUNT.setPermission_noti(permission_noti);
+                                    fireACCOUNT.setPermission_showevent(permission_showevent);
+                                    fireACCOUNT.setPermission_make_event_solve(permission_make_event_solve);
+                                    fireACCOUNT.setPermission_block(permission_block);
+                                    fireACCOUNT.setPermission_report(permission_report);
+                                    fireACCOUNT.setPermission_blocku_admin(permission_blocku_admin);
+                                    fireACCOUNT.setPermission_deleteu_admin(permission_deleteu_admin);
+                                    fireACCOUNT.setPermission_photo_hide(permission_photo_hide);
+                                    fireACCOUNT.setPermission_photo_hide_admin(permission_photo_hide_admin);
+                                    fireACCOUNT.setPermission_photo_delete(permission_photo_delete);
+
 
 
                                     fireACCOUNT.setAccount_photo(getDownloadUrls);
@@ -346,6 +410,26 @@ public class FireRegistration extends AppCompatActivity {
                             fireACCOUNT.setAccount_email(email);
                             fireACCOUNT.setAccount_type(radios);
                             fireACCOUNT.setAccount_birthday(birthdays);
+
+                            fireACCOUNT.setPermission_inter(permission_inter);
+                            fireACCOUNT.setPermission_event(permission_event);
+                            fireACCOUNT.setPermission_comm(permission_comm);
+                            fireACCOUNT.setPermission_share(permission_share);
+                            fireACCOUNT.setPermission_like(permission_like);
+                            fireACCOUNT.setPermission_profile(permission_profile);
+                            fireACCOUNT.setPermission_editprofile(permission_editprofile);
+                            fireACCOUNT.setPermission_map(permission_map);
+                            fireACCOUNT.setPermission_noti(permission_noti);
+                            fireACCOUNT.setPermission_showevent(permission_showevent);
+                            fireACCOUNT.setPermission_make_event_solve(permission_make_event_solve);
+                            fireACCOUNT.setPermission_block(permission_block);
+                            fireACCOUNT.setPermission_report(permission_report);
+                            fireACCOUNT.setPermission_blocku_admin(permission_blocku_admin);
+                            fireACCOUNT.setPermission_deleteu_admin(permission_deleteu_admin);
+                            fireACCOUNT.setPermission_photo_hide(permission_photo_hide);
+                            fireACCOUNT.setPermission_photo_hide_admin(permission_photo_hide_admin);
+                            fireACCOUNT.setPermission_photo_delete(permission_photo_delete);
+
 
                             fireACCOUNT.setAccount_photo(getDownloadUrls);
 

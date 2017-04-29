@@ -45,7 +45,13 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.sr.projectg.Database.SQLiteDatabaseHelper;
+import com.sr.projectg.Firebase.FEvent.FireEvent;
 import com.sr.projectg.R;
 
 import java.util.ArrayList;
@@ -78,9 +84,8 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
     private LocationManager locationManager;
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 14;
 
-
-    static double lng;
     static double lat;
+    static double lng;
 
     String name1, lat1, lng1,det1,code1;
 
@@ -172,11 +177,49 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
 
-/*
                 mClusterManager = new ClusterManager<MyItem>(getActivity(), googleMap);
                 mClusterManager.setRenderer(new OwnRendring(getContext(),googleMap,mClusterManager));
                 mClusterManager.clearItems();
 
+                DatabaseReference mapsrefrence= FirebaseDatabase.getInstance().getReference();
+                mapsrefrence.child("EVENT").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        if (dataSnapshot.hasChildren()) {
+                            for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                                // TODO: handle the post
+                                FireEvent fireEvent = postSnapshot.getValue(FireEvent.class);
+                                  lat = Double.parseDouble(fireEvent.getEvent_latitude());
+                                  lng = Double.parseDouble(fireEvent.getEvent_longitude());
+                                String title=fireEvent.getEvent_type();
+                                String det=fireEvent.getEvent_det();
+                                String tyco=fireEvent.getEvent_type_code();
+
+                                Log.i("SRFire0",lat+"-"+lng+"-"+title+"-"+det+"-"+tyco);
+                                MyItem offsetItem = new MyItem(bbd(tyco),lat, lng,title,det);
+
+                                mClusterManager.addItem(offsetItem);
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
+
+
+             /*
+
+                mClusterManager = new ClusterManager<MyItem>(getActivity(), googleMap);
+                mClusterManager.setRenderer(new OwnRendring(getContext(),googleMap,mClusterManager));
+                mClusterManager.clearItems();
+              */
                 // Point the map's listeners at the listeners implemented by the cluster manager.
                 googleMap.setOnCameraChangeListener(mClusterManager);
                 googleMap.setOnMarkerClickListener(mClusterManager);
@@ -204,7 +247,8 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
                 }
 
-                */
+
+
                 if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    ActivityCompat#requestPermissions
@@ -237,15 +281,11 @@ public class MapHomeFragment extends Fragment implements com.google.android.gms.
 
 
 
-                       // LatLng sydney = new LatLng(lat, lng);
-
-
-
-
-                        // addClusterMarkers(mClusterManager);
-                        //googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-                        //CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
-                        //googleMap.animateCamera(zoom);
+                        LatLng sydney = new LatLng(lat, lng);
+                         addClusterMarkers(mClusterManager);
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+                        CameraUpdate zoom = CameraUpdateFactory.zoomTo(14);
+                        googleMap.animateCamera(zoom);
 
 
 

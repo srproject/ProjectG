@@ -27,9 +27,8 @@
             app:cardCornerRadius="1dp"
             android:divider="#E6E6E6"
             android:dividerHeight="5px"
-            android:clickable="true"
-
             >
+
 
 
             <ImageView

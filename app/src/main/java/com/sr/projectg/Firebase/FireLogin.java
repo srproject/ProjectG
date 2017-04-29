@@ -60,6 +60,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.sr.projectg.BuildConfig;
 import com.sr.projectg.MainActivity;
+import com.sr.projectg.Firebase.FireLogin.*;
+
 import com.sr.projectg.R;
 import com.sr.projectg.activity.AddEventActivity;
 
@@ -119,14 +121,20 @@ public class FireLogin  extends AppCompatActivity implements
     //{END Facebook}
 
 
-ProgressDialog progressDialog;
+    ProgressDialog progressDialog;
 
+    public static String perr;
+    int perrint;
+    MainActivity ma;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login_layout);
 
         progressDialog =new ProgressDialog(this);
+
+        ma=new MainActivity();
+        ma.finish();
 
         // Views
         emailetlog = (EditText) findViewById(R.id.emailetlog);
@@ -154,9 +162,15 @@ ProgressDialog progressDialog;
         ship_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
-                Intent intent = new Intent(FireLogin.this,MainActivity.class);
-                startActivity(intent);
+                progressDialog.setMessage("Loading...");
+                progressDialog.show();
+                perm();
+
+
+
+
+
+
 
             }
         });
@@ -313,6 +327,7 @@ ProgressDialog progressDialog;
                             sign=1;
                             Toast.makeText(FireLogin.this, "Welcome",
                                     Toast.LENGTH_SHORT).show();
+                            perm();
                             finish();
                             Intent intent = new Intent(FireLogin.this, MainActivity.class);
                             intent.putExtra("SRlogin", "1");
@@ -336,6 +351,11 @@ ProgressDialog progressDialog;
                    FirebaseAuth.getInstance().signOut();
                    LoginManager.getInstance().logOut();
         sign=0;
+
+        perr="2";
+
+
+
                    // Toast.makeText(context,"",Toast.LENGTH_SHORT).show();
                     // Google sign out
 
@@ -453,6 +473,7 @@ ProgressDialog progressDialog;
                 sign=1;
                 Toast.makeText(FireLogin.this, "Welcome",
                         Toast.LENGTH_SHORT).show();
+                perm();
                 finish();
                 Intent intent = new Intent(FireLogin.this, MainActivity.class);
                 intent.putExtra("SRlogin", "1");
@@ -752,6 +773,64 @@ ProgressDialog progressDialog;
         String evid = "ac" + randomNo+day+mon+year+hour+Min+sec;
 
         return evid;
+    }
+
+    public  String  perm(){
+
+        if(mAuth.getCurrentUser()!=null) {
+
+            email = mAuth.getCurrentUser().getEmail().toString();
+
+
+
+            // Create a storage reference from our app
+
+            Firebase.setAndroidContext(FireLogin.this);
+            final Firebase ref = new Firebase("https://projectg-70ce9.firebaseio.com/");
+            Query query = ref.child("ACCOUNT").orderByChild("account_email").equalTo(email);
+            query.addListenerForSingleValueEvent(new com.firebase.client.ValueEventListener() {
+                @Override
+                public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
+
+
+                    if (dataSnapshot.hasChildren()) {
+                        for (com.firebase.client.DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                            // TODO: handle the post
+                            FireACCOUNT fireACCOUNT = postSnapshot.getValue(FireACCOUNT.class);
+                            perr=fireACCOUNT.getPermission_report();
+
+                            Log.i("SRFire00",perr+" Is Solve");
+                            progressDialog.dismiss();
+
+
+                            finish();
+
+                            Intent intent = new Intent(FireLogin.this, MainActivity.class);
+                            startActivity(intent);
+
+                        }
+                    }
+
+
+
+
+                }
+
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+        });
+        }else {
+
+            perr="2";
+
+            finish();
+
+            Intent intent = new Intent(FireLogin.this, MainActivity.class);
+            startActivity(intent);
+        }
+            return perr;
     }
 
 

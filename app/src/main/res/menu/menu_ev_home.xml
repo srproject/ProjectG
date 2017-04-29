@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.sr.projectg.MainActivity">
+
+
+    <group android:id="@+id/group_event">
+
+
+
+        <item android:title="Make proplem solvd"
+            android:id="@+id/pop_hom_mps"
+
+            />
+        <item android:title="Make proplem not solvd"
+        android:id="@+id/pop_hom_mpns"
+
+        />
+
+
+    </group>
+
+</menu>

@@ -38,11 +38,23 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.sr.projectg.Firebase.FEvent.FireEvent;
+import com.sr.projectg.Firebase.FireACCOUNT;
 import com.sr.projectg.Firebase.FireLogin;
 import com.sr.projectg.Firebase.FireRegistration;
 import com.sr.projectg.Fragment.CameraFragment;
@@ -54,6 +66,7 @@ import com.sr.projectg.activity.AddEventActivity;
 import com.sr.projectg.activity.LoginActivity;
 import com.sr.projectg.Firebase.FireLogin.*;
 import com.sr.projectg.activity.web;
+import com.sr.projectg.clustering.MyItem;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -80,6 +93,20 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
     Bundle bundle;
     NavigationView navigationView;
 
+    // [START declare_auth]
+    private static FirebaseAuth mAuth;
+   // FireACCOUNT fireACCOUNT;
+    String id,name  ,email,perrs;
+    // [END declare_auth]
+
+    // [START declare_auth_listener]
+    DatabaseReference db;
+    private static final String TAG = "SRFire0";
+
+    static MenuItem report;
+
+
+
 
 
     @Override
@@ -91,8 +118,20 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
         setSupportActionBar(toolbar);
         //getSupportActionBar().setShowHideAnimationEnabled(true);
         getSupportActionBar().show();
-/*
-//For KeyHash for facebook login setup
+
+
+
+        FirebaseApp.initializeApp(this);
+        db = FirebaseDatabase.getInstance().getReference();
+
+
+
+        mAuth = FirebaseAuth.getInstance();
+         // [END initialize_auth]
+
+
+         /*
+        //For KeyHash for facebook login setup
 
         try {
             PackageInfo info = getPackageManager().getPackageInfo(
@@ -304,6 +343,26 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        FireLogin ff=new FireLogin();
+        Log.i("SRFire00",ff.perr);
+        int gg=Integer.parseInt(ff.perr) ;
+        if( gg==0){
+
+            report=menu.findItem(R.id.action_web);
+            report.setVisible(false);
+        }
+        if( gg==1){
+
+            report=menu.findItem(R.id.action_web);
+            report.setVisible(true);
+        }
+        if( gg==2){
+
+            report=menu.findItem(R.id.action_web);
+            report.setVisible(false);
+        }
+
+
         return true;
     }
 
@@ -400,6 +459,8 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
         }
         else if (id == R.id.nav_item_signin) {
 
+            finish();
+
             Intent intent = new Intent(MainActivity.this, FireLogin.class);
             startActivity(intent);
 
@@ -416,6 +477,8 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
                 nav_Menu.findItem(R.id.nav_item_signout).setVisible(false);
                 Toast.makeText(getApplicationContext(), "Signed out", Toast.LENGTH_SHORT).show();
                 signm = 0;
+                Intent intent = new Intent(MainActivity.this, FireLogin.class);
+                 startActivity(intent);
 
 
             } else {
@@ -560,6 +623,53 @@ public class MainActivity extends AppCompatActivity implements   NavigationView.
         }
 
     }
+
+
+
+    public  String  perm(){
+
+        if(mAuth.getCurrentUser().getDisplayName()!=null) {
+            name = mAuth.getCurrentUser().getDisplayName().toString();
+        }
+        email = mAuth.getCurrentUser().getEmail().toString();
+
+        // Create a storage reference from our app
+
+        Firebase.setAndroidContext(MainActivity.this);
+        final Firebase ref = new Firebase("https://projectg-70ce9.firebaseio.com/");
+        Query query = ref.child("ACCOUNT").orderByChild("account_email").equalTo(email);
+        query.addListenerForSingleValueEvent(new com.firebase.client.ValueEventListener() {
+            @Override
+            public void onDataChange(com.firebase.client.DataSnapshot dataSnapshot) {
+
+
+                if (dataSnapshot.hasChildren()) {
+                    for (com.firebase.client.DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                        // TODO: handle the post
+                        FireACCOUNT fireACCOUNT = postSnapshot.getValue(FireACCOUNT.class);
+
+                        Log.i("SRFire00",fireACCOUNT.getPermission_make_event_solve()+" Is Solve");
+                        if(fireACCOUNT.getPermission_make_event_solve()=="0"){
+
+                            perrs="0";
+
+
+                        }
+                    }
+                }
+
+
+
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+            return perrs;
+     }
 
 
 }

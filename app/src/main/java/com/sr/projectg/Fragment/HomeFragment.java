@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -46,6 +47,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 /**
@@ -112,10 +115,34 @@ public class HomeFragment extends Fragment implements KeyListener,View.OnClickLi
        // mySwipeRefreshLayout.setRefreshing(true);
 
         lv = (ListView) rootView.findViewById(R.id.listev);
+
+
+
+
+
         adapter = new FEventAdapter(getContext(), helper.retrieve());
         lv.setAdapter(adapter);
+        lv.setClickable(true);
 
-            String fff=String.valueOf(lv.getCount());
+        View view = null;
+
+        String value;
+        for (int i = 0; i < adapter.getCount(); i++) {
+
+            view = adapter.getView(i, view, lv);
+
+            TextView et = (TextView) view.findViewById(R.id.title12);
+
+
+            value=et.getText().toString();
+
+            Toast.makeText(getApplicationContext(), value,
+                    Toast.LENGTH_SHORT).show();
+        }
+
+
+
+             String fff=String.valueOf(lv.getCount());
             Log.i("SRFire0","fff"+fff);
             if(lv.getCount()>0){
                 mySwipeRefreshLayout.setRefreshing(false);

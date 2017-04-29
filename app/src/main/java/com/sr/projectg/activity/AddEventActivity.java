@@ -450,6 +450,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                                             fireEvent.setEvent_longitude(text2.toString());
                                             fireEvent.setEvent_latitude(text1.toString());
                                             fireEvent.setEvent_locnam(text3.toString());
+                                            fireEvent.setEvent_solve("");
                                             fireEvent.setEvent_date(datematab.getText().toString());
                                             fireEvent.setEvent_time(timematab.getText().toString());
 
@@ -460,7 +461,7 @@ public class AddEventActivity extends AppCompatActivity implements LocationListe
                                                 public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
                                                     Toast.makeText(getApplicationContext(),"حبيبي تسلم",Toast.LENGTH_SHORT).show();
-                                                 //   finish();
+                                                   finish();
 
 
                                                 }

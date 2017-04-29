@@ -72,6 +72,17 @@
                 android:textColor="#000"
                 />
 
+            <TextView
+                android:id="@+id/event_solve"
+                android:text=" c"
+                android:layout_marginLeft="500dp"
+                android:layout_marginTop="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="14dp"
+                android:textColor="#000"
+                />
+
 
             <TextView
                 android:id="@+id/des1"

@@ -125,6 +125,17 @@ public class FireEvent {
 
     private String event_map_snap_url;
 
+    public String getEvent_solve() {
+        return event_solve;
+    }
+
+    public void setEvent_solve(String event_solve) {
+        this.event_solve = event_solve;
+    }
+
+    private String event_solve;
+
+
 
 
 }
