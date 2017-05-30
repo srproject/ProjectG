@@ -164,7 +164,11 @@ public class FireLogin  extends AppCompatActivity implements
             public void onClick(View v) {
                 progressDialog.setMessage("Loading...");
                 progressDialog.show();
-                perm();
+               // perm();
+
+                finish();
+                Intent intent = new Intent(FireLogin.this, MainActivity.class);
+                startActivity(intent);
 
 
 
@@ -777,7 +781,9 @@ public class FireLogin  extends AppCompatActivity implements
 
     public  String  perm(){
 
-        if(mAuth.getCurrentUser()!=null) {
+        Log.e("SRFire00",mAuth.getCurrentUser().getEmail());
+
+        if(!mAuth.getCurrentUser().getEmail().equals("")) {
 
             email = mAuth.getCurrentUser().getEmail().toString();
 

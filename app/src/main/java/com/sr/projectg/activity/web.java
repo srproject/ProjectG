@@ -9,6 +9,8 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.DownloadListener;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -34,7 +36,7 @@ public class web extends AppCompatActivity {
        // findViewById(R.id.activity_main_webview).setVisibility(View.VISIBLE);
         mySwipeRefreshLayout = (SwipeRefreshLayout)this.findViewById(R.id.swipeContainer);
 
-        String gg="https://projectg-70ce9.firebaseapp.com/";
+        String gg="https://projectg-70ce9.firebaseapp.com/index.html";
 
         mySwipeRefreshLayout.setColorSchemeResources(
                 R.color.rp1,
@@ -44,6 +46,7 @@ public class web extends AppCompatActivity {
                 R.color.rp5);
 
         mWebView = (WebView) findViewById(R.id.activity_main_webview);
+
         if (!isNetworkStatusAvialablesr(getApplicationContext())) {
             mWebView.setVisibility(View.GONE);
             Toast.makeText(getApplicationContext(),getString(R.string.web_refesh_error),Toast.LENGTH_SHORT).show();
@@ -53,6 +56,12 @@ public class web extends AppCompatActivity {
         }else {
             mySwipeRefreshLayout.setRefreshing(true);
             mWebView.getSettings().setJavaScriptEnabled(true);
+            mWebView.clearCache(true);
+            mWebView.clearFormData();
+            CookieSyncManager.createInstance(this);
+            CookieManager cookieManager = CookieManager.getInstance();
+            cookieManager.removeAllCookie();
+
             mWebView.loadUrl(gg);
 
         }
@@ -73,6 +82,10 @@ public class web extends AppCompatActivity {
                     public void onRefresh() {
 
                         if (isNetworkStatusAvialablesr(getApplicationContext())) {
+                            mWebView.clearCache(true);
+
+                            mWebView.clearHistory();
+
                             mWebView.reload();
 
 
